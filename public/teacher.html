@@ -388,13 +388,138 @@
         .checkbox-container:hover + label {
             color: #007779;
         }
+
+        /* ---- Dark mode ---- */
+        #theme-toggle {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            padding: 8px 14px;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        html[data-theme="dark"] body {
+            background-color: #121417;
+            color: #e8e8e8;
+        }
+
+        html[data-theme="dark"] a {
+            color: #4fd1d9;
+        }
+
+        html[data-theme="dark"] input[type="text"],
+        html[data-theme="dark"] textarea[type="text"] {
+            background-color: #1e2126;
+            color: #e8e8e8;
+            border-color: #d8d8d8;
+            box-shadow: 3px 2px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] button {
+            color: #e8e8e8;
+            background-color: #0d3a3d;
+            border-color: #00a4aa;
+            box-shadow: 3px 2px 0 #00a4aa;
+        }
+
+        html[data-theme="dark"] input[type="text"]:hover,
+        html[data-theme="dark"] textarea[type="text"]:hover,
+        html[data-theme="dark"] button:hover {
+            border-color: #2dd4d8;
+            box-shadow: 4px 3px 0 #2dd4d8;
+        }
+
+        html[data-theme="dark"] input[type="text"]:active,
+        html[data-theme="dark"] textarea[type="text"]:active,
+        html[data-theme="dark"] button:active {
+            border-color: #2dd4d8;
+            box-shadow: 6px 4px 0 #2dd4d8;
+        }
+
+        html[data-theme="dark"] .test-session,
+        html[data-theme="dark"] .fk,
+        html[data-theme="dark"] .info,
+        html[data-theme="dark"] .gh,
+        html[data-theme="dark"] p.err,
+        html[data-theme="dark"] .page-footer .footer-card {
+            background: #1e2126;
+            border-color: #d8d8d8;
+            box-shadow: 3px 2px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] .test-session:hover,
+        html[data-theme="dark"] .fk:hover,
+        html[data-theme="dark"] .info:hover,
+        html[data-theme="dark"] p.err:hover {
+            box-shadow: 6px 4px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] span {
+            color: #2dd4d8;
+        }
+
+        html[data-theme="dark"] .gh > a > span {
+            color: #e8e8e8;
+        }
+
+        html[data-theme="dark"] .gh > a > svg {
+            fill: #e8e8e8;
+        }
+
+        html[data-theme="dark"] #teacher-link {
+            color: #2dd4d8;
+        }
+
+        html[data-theme="dark"] .checkbox-container {
+            --checkbox-color: #d8d8d8;
+        }
+
+        html[data-theme="dark"] .checkbox-container input[type="checkbox"] {
+            box-shadow: 3px 2px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] .checkbox-container #checkbox-show-indicator,
+        html[data-theme="dark"] input[type="checkbox"]:checked::before {
+            background-color: #2dd4d8;
+        }
+
+        html[data-theme="dark"] .ui-widget.ui-widget-content,
+        html[data-theme="dark"] .ui-widget-content {
+            background: #1e2126;
+            color: #e8e8e8;
+            border-color: #555;
+        }
+
+        html[data-theme="dark"] .ui-menu-item .ui-menu-item-wrapper {
+            color: #e8e8e8;
+        }
+
+        html[data-theme="dark"] .ui-menu-item .ui-menu-item-wrapper.ui-state-active {
+            background: #0d3a3d;
+            border-color: #00a4aa;
+            color: #e8e8e8;
+        }
     </style>
+    <script>
+        // Apply saved / system theme early to avoid flash of wrong theme
+        (function () {
+            var theme = null;
+            try { theme = localStorage.getItem("examschedule.theme"); } catch (e) {}
+            if (!theme) {
+                theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            }
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
     <link href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 </head>
 
 <body>
+<button id="theme-toggle" type="button" aria-label="切换深色模式 / Toggle dark mode" title="切换深色模式 / Toggle dark mode">🌙</button>
 <div class="page">
     <h1>BRS考试时刻表查询系统（监考版）</h1>
     <small>已经更新2025-2026学年第1学期期末考试，请老师们查收</small>
@@ -448,7 +573,7 @@
             <a href="https://github.com/plushugh/examschedule">@plushugh</a>
             开发
             目前使用版本由
-            <a href="https://github.com/CyrusChen-2007/examschedule/">@CyrusChen-2007</a>
+            <a href="https://github.com/SteveHHuang/examschedule">@stevehhuang</a>
             运营维护。
             <br>
             This is a
@@ -457,7 +582,7 @@
             <a href="https://github.com/plushugh/examschedule">@plushugh</a>
             on GitHub,
             currently maintained by
-            <a href="https://github.com/CyrusChen-2007/examschedule/">@CyrusChen-2007</a>.
+            <a href="https://github.com/SteveHHuang/examschedule">@stevehhuang</a>.
         </div>
 
         <div class="fk footer-card" id="disclaimer">
@@ -473,8 +598,8 @@
                 </p>
 
                 <p id="contact-info">
-                    电子邮箱 Email: <a href="mailto:cyjcyjcccyj@gmail.com">cyjcyjcccyj@gmail.com</a><br>
-                    钉钉 Dingtalk: <span style="font-weight: 700; color: inherit;">cyruschen07</span>
+                    电子邮箱 Email: <a href="mailto:stevehuang2008@outlook.com">stevehuang2008@outlook.com</a><br>
+                    钉钉 Dingtalk: <span style="font-weight: 700; color: inherit;">stevehuang1110</span>
                 </p>
             </div>
         </div>
@@ -514,12 +639,12 @@
             proctoredBy3: "监考",
 
             // footer / disclaimer
-            contribHtml: `这是一个 <a href="https://fsf.org">自由软件</a> 项目，由 <a href="https://github.com/plushugh/examschedule">@plushugh</a> 开发，目前使用版本由 <a href="https://github.com/CyrusChen-2007/examschedule/">@CyrusChen-2007</a> 运营维护。`,
+            contribHtml: `这是一个 <a href="https://fsf.org">自由软件</a> 项目，由 <a href="https://github.com/plushugh/examschedule">@plushugh</a> 开发，目前使用版本由 <a href="https://github.com/SteveHHuang/examschedule">@stevehhuang</a> 运营维护。`,
             disclaimerLabel: "反馈/免责声明",
             disclaimerText:
                 "免责声明：本服务提供的考试信息仅供参考，不一定反映真实考试信息，具体请参照官方公布的考试信息。",
             contactNotice:
-                "本版本增加了导入苹果日历的功能和中英文的切换，如果有任何的bug或是建议，请联系开发者。",
+                "本版本增加了深色模式（右上角可切换），如果有任何的bug或是建议，请联系开发者。",
             contactEmailLabel: "电子邮箱 Email:",
             contactDingtalkLabel: "钉钉 Dingtalk:",
         },
@@ -553,12 +678,12 @@
             proctoredBy3: "",
 
             // footer / disclaimer
-            contribHtml: `This is a <a href="https://fsf.org">Free Software</a> project, developed by <a href="https://github.com/plushugh/examschedule">@plushugh</a> on GitHub, currently maintained by <a href="https://github.com/CyrusChen-2007/examschedule/">@CyrusChen-2007</a>.`,
+            contribHtml: `This is a <a href="https://fsf.org">Free Software</a> project, developed by <a href="https://github.com/plushugh/examschedule">@plushugh</a> on GitHub, currently maintained by <a href="https://github.com/SteveHHuang/examschedule">@stevehhuang</a>.`,
             disclaimerLabel: "Feedback / Disclaimer",
             disclaimerText:
                 "Disclaimer: The exam information provided by this service is for reference only and does not necessarily reflect the actual exam information. Please refer to the official exam information for details.",
             contactNotice:
-                "This version adds Apple Calendar import and a Chinese/English language switch. If you notice any bugs or have suggestions, please contact the developer.",
+                "This version adds a dark mode (toggle in the top-right corner). If you notice any bugs or have suggestions, please contact the developer.",
             contactEmailLabel: "Email:",
             contactDingtalkLabel: "Dingtalk:",
         },
@@ -969,6 +1094,23 @@
             document.querySelector("body").innerHTML =
                 `<p class="err">${t("errFetch")}</p>`;
         });
+</script>
+<script>
+    // ---- Theme (color scheme) toggle ----
+    (function () {
+        var btn = document.getElementById("theme-toggle");
+        if (!btn) return;
+        function syncIcon() {
+            btn.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
+        }
+        btn.addEventListener("click", function () {
+            var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            try { localStorage.setItem("examschedule.theme", next); } catch (e) {}
+            syncIcon();
+        });
+        syncIcon();
+    })();
 </script>
 <script async data-token="7fb81829-48b9-4fb6-9041-c11a9106b3a0"
         src="https://beamanalytics.b-cdn.net/beam.min.js"></script>
