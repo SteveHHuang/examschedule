@@ -56,6 +56,17 @@
             text-align: center;
         }
 
+        /* Notes that live under the search box, not in the header. */
+        .form-notes {
+            display: grid;
+            gap: 4px;
+            margin: 4px 0 0;
+        }
+
+        .form-notes small {
+            margin: 0;
+        }
+
         form {
             margin-top: 20px;
             display: flex;
@@ -633,13 +644,6 @@
             中文 / EN
         </button>
     </div>
-    <small id="line-notice1" style="color: red;">【注意！本次部分学科的考试将不会出现在本列表中】</small>
-    <small id="line-notice2" style="color: red;">【请核对自己的课表，若发现未显示的科目，请联系学科老师确认时间和地点】</small>
-    <small id="line-findhint"
-    >如果查不到，请使用希悦档案的名字查询，并尝试自己名字+毕业学年（如张三-高中2026届），如果还是找不到，请以这个文件内的名字查询：<a
-            href="./studentNamesList.txt"
-    >studentNamesList.txt</a
-    ></small>
     <p id="teacher-link" style="color: #007779; text-align: center; margin: 0">
         教师监考查询：请访问<a href="./teacher.html">教师版</a>
     </p>
@@ -658,6 +662,16 @@
         <label for="checkbox-show">显示考试其他学生</label>
     </div>
 </form>
+    <!-- Kept below the search box so the header matches the official top layout. -->
+    <div class="form-notes">
+        <small id="line-findhint"
+        >如果查不到，请使用希悦档案的名字查询，并尝试自己名字+毕业学年（如张三-高中2026届），如果还是找不到，请以这个文件内的名字查询：<a
+                href="./studentNamesList.txt"
+        >studentNamesList.txt</a
+        ></small>
+        <small id="line-notice1" style="color: red;">【注意！本次部分学科的考试将不会出现在本列表中】</small>
+        <small id="line-notice2" style="color: red;">【请核对自己的课表，若发现未显示的科目，请联系学科老师确认时间和地点】</small>
+    </div>
     <div id="schedule"></div>
 
     <div class="page-footer" id="page-footer">
