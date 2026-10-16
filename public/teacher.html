@@ -183,6 +183,9 @@
             align-items: baseline;
             gap: 0.2em;
             min-width: 0;
+            /* Safety net: even if the fit logic is skipped, this line can never
+               spill left over the "location" text. */
+            overflow: hidden;
         }
 
         /* The "by … proctored" wording must stay whole so this line never wraps. */
@@ -1283,6 +1286,17 @@
                 name.style.flexShrink = "1";
             }
         });
+    }
+
+    // Re-fit whenever the layout can change (window resize / web-font load),
+    // otherwise a narrow window could leave the line overflowing again.
+    let proctorFitTimer = 0;
+    window.addEventListener("resize", () => {
+        clearTimeout(proctorFitTimer);
+        proctorFitTimer = setTimeout(fitProctorNames, 120);
+    });
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => fitProctorNames());
     }
 
     showCheckbox.addEventListener("change", () => {
