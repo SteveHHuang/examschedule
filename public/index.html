@@ -26,7 +26,8 @@
         }
 
         .page {
-            width: min(130ch, 100%);
+            /* Was 130ch — widened so cards make better use of large screens. */
+            width: min(170ch, 100%);
             margin: 0 auto;
             padding: 16px;
         }
@@ -118,11 +119,17 @@
         #schedule {
             display: grid;
             gap: 10px;
-            /* Wide cards: at least 640px before a second column is considered, so
-               a card is long enough for the whole proctor line on one row. */
-            grid-template-columns: repeat(auto-fit, minmax(min(90vw, 640px), 1fr));
+            /* Always two cards per row on desktop; cards get longer as the
+               window/screen gets wider. Single column on narrow screens. */
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             width: 100%;
             margin: 64px auto 48px;
+        }
+
+        @media (max-width: 800px) {
+            #schedule {
+                grid-template-columns: minmax(0, 1fr);
+            }
         }
 
         .test-session {
@@ -323,7 +330,10 @@
 
 
         .page-footer {
-            margin: 64px 0 24px;
+            /* Cards below use the full width, but the footer text stays at a
+               comfortable reading width and centred. */
+            max-width: 1100px;
+            margin: 64px auto 24px;
             display: grid;
             gap: 12px;
         }
