@@ -1210,12 +1210,12 @@
         }
 
     showCheckbox.addEventListener("change", () => {
-        if (showCheckbox.checked) {
-            showCheck = true;
-            showCheckboxIndicator.classList.toggle("checked", true);
-        } else {
-            showCheck = false;
-            showCheckboxIndicator.classList.toggle("checked", false);
+        showCheck = showCheckbox.checked;
+        showCheckboxIndicator.classList.toggle("checked", showCheck);
+        // Re-render right away so the student list appears/disappears without
+        // forcing the user to search again.
+        if (lastProctorSessions && lastProctorName) {
+            renderSchedule(lastProctorName, lastProctorSessions);
         }
     });
 
