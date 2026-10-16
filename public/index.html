@@ -615,6 +615,25 @@
             border-color: #00a4aa;
             color: #e8e8e8;
         }
+
+        /* No-JS warning */
+        .noscript-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 16px;
+            margin: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        html[data-theme="dark"] .noscript-warning {
+            background: #332b1a;
+            color: #ffdd8a;
+            border-color: #66542e;
+        }
     </style>
     <script>
         // Apply saved / system theme early to avoid flash of wrong theme
@@ -633,6 +652,12 @@
 </head>
 
 <body>
+<noscript>
+    <div class="noscript-warning">
+        本页面需要启用 JavaScript 才能查询考试时刻表。请检查浏览器设置，或在其他设备上访问。<br>
+        This page requires JavaScript to look up exam schedules. Please enable it in your browser settings, or visit from another device.
+    </div>
+</noscript>
 <button id="theme-toggle" type="button" aria-label="切换深色模式 / Toggle dark mode" title="切换深色模式 / Toggle dark mode">🌙</button>
 <div class="page">
     <h1>BRS考试时刻表查询系统</h1>

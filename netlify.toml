@@ -1,0 +1,14 @@
+[build]
+  # Netlify does not ship Deno by default, so netlify-build.sh installs it on demand.
+  command = "bash netlify-build.sh"
+  publish = "public"
+
+[build.environment]
+  DENO_INSTALL = "/opt/buildhome/.deno"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
