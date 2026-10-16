@@ -56,17 +56,6 @@
             text-align: center;
         }
 
-        /* Notes that live under the search box, not in the header. */
-        .form-notes {
-            display: grid;
-            gap: 4px;
-            margin: 4px 0 0;
-        }
-
-        .form-notes small {
-            margin: 0;
-        }
-
         form {
             margin-top: 20px;
             display: flex;
@@ -636,6 +625,7 @@
     <small id="line-updated">已经更新2025-2026学年第1学期期末考试，请同学们查收</small>
     <small id="line-permalink" style="color: red;">本网站的永久链接是：https://brsexam.approacher.org/，若您目前在使用临时链接，请保存收藏以免丢失</small>
     <small id="line-ps" style="color: red;">PS: 感谢Appraacher Studio支付了75美金的域名恢复费用，让大家可以享受本服务</small>
+    <small id="line-findhint">如果查不到，请使用希悦档案的名字查询</small>
     <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0 24px; gap: 10px; align-items: center; flex-wrap: wrap;">
         <button id="lang-toggle"
                 type="button"
@@ -662,22 +652,12 @@
         <label for="checkbox-show">显示考试其他学生</label>
     </div>
 </form>
-    <!-- Kept below the search box so the header matches the official top layout. -->
-    <div class="form-notes">
-        <small id="line-findhint"
-        >如果查不到，请使用希悦档案的名字查询，并尝试自己名字+毕业学年（如张三-高中2026届），如果还是找不到，请以这个文件内的名字查询：<a
-                href="./studentNamesList.txt"
-        >studentNamesList.txt</a
-        ></small>
-        <small id="line-notice1" style="color: red;">【注意！本次部分学科的考试将不会出现在本列表中】</small>
-        <small id="line-notice2" style="color: red;">【请核对自己的课表，若发现未显示的科目，请联系学科老师确认时间和地点】</small>
-    </div>
     <div id="schedule"></div>
 
     <div class="page-footer" id="page-footer">
         <div class="gh footer-card" id="github">
-            <a aria-label="Star plushugh/examschedule on GitHub" class="github-button"
-               href="https://github.com/plushugh/examschedule">
+            <a aria-label="Star SteveHHuang/examschedule on GitHub" class="github-button"
+               href="https://github.com/SteveHHuang/examschedule">
                 <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <title>GitHub</title>
                     <path
@@ -729,10 +709,7 @@
             updated: "已经更新2025-2026学年第1学期期末考试，请同学们查收",
             permLink: "本网站的永久链接是：https://brsexam.approacher.org/，若您目前在使用临时链接，请保存收藏以免丢失",
             psNote: "PS: 感谢Appraacher Studio支付了75美金的域名恢复费用，让大家可以享受本服务",
-            notice1: "【注意！本次部分学科的考试将不会出现在本列表中】",
-            notice2: "【请核对自己的课表，若发现未显示的科目，请联系学科老师确认时间和地点】",
-            findHint:
-                "如果查不到，请使用希悦档案的名字查询，并尝试自己名字+毕业学年（如张三-高中2026届），如果还是找不到，请以这个文件内的名字查询：",
+            findHint: "如果查不到，请使用希悦档案的名字查询",
             teacherLink: "教师监考查询：请访问",
             teacherLinkLabel: "教师版",
             studentPlaceholder: "请输入学生全名",
@@ -779,11 +756,7 @@
                 "Permanent link: https://brsexam.approacher.org/ (if you're using a temporary link, please bookmark it)",
             psNote:
                 "PS: thanks to Appraacher Studio for covering the USD 75 domain restoration fee, so everyone can keep using this service",
-            notice1: "[Notice] Some subjects may not be listed",
-            notice2:
-                "[Notice] Please double-check your timetable; if any subjects are missing, contact your subject teacher",
-            findHint:
-                "If you can't find your schedule, try the name used in your student record system; you can also try adding your graduation year (e.g., ZhangSan-2026). Otherwise, search using the names in:",
+            findHint: "If you can't find your schedule, please search using the name on your 希悦 (student record) profile",
             teacherLink: "Proctor Sessions Lookup: please visit",
             teacherLinkLabel: "Teacher Version",
             studentPlaceholder: "Enter full student name",
@@ -842,17 +815,7 @@
         setText("#line-updated", t("updated"));
         setText("#line-permalink", t("permLink"));
         setText("#line-ps", t("psNote"));
-        setText("#line-notice1", t("notice1"));
-        setText("#line-notice2", t("notice2"));
-
-        const findHint = document.querySelector("#line-findhint");
-        if (findHint) {
-            // Keep the link, but localize the prefix text.
-            const link = findHint.querySelector("a");
-            findHint.innerHTML = "";
-            findHint.appendChild(document.createTextNode(t("findHint")));
-            if (link) findHint.appendChild(link);
-        }
+        setText("#line-findhint", t("findHint"));
 
         const teacherLink = document.querySelector("#teacher-link");
         if (teacherLink) {
