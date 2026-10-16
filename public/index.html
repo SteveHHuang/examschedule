@@ -442,6 +442,9 @@
         /* ---- Status messages (loading / no result) ---- */
         .loading,
         .no-result {
+            /* #schedule is a two-column grid: span both columns so margin:auto
+               centers the message across the whole page, not within one cell. */
+            grid-column: 1 / -1;
             max-width: 70ch;
             margin: 32px auto;
             padding: 14px 16px;
