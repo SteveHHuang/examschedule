@@ -622,8 +622,9 @@
 <button id="theme-toggle" type="button" aria-label="切换深色模式 / Toggle dark mode" title="切换深色模式 / Toggle dark mode">🌙</button>
 <div class="page">
     <h1>BRS考试时刻表查询系统</h1>
-    <small>已经更新2025-2026学年第1学期期末考试，请同学们查收</small>
-    <small style="color: red;">本网站的永久链接是：https://brsexam.approacher.org/，若您目前在使用临时链接，请保存收藏以免丢失</small>
+    <small id="line-updated">已经更新2025-2026学年第1学期期末考试，请同学们查收</small>
+    <small id="line-permalink" style="color: red;">本网站的永久链接是：https://brsexam.approacher.org/，若您目前在使用临时链接，请保存收藏以免丢失</small>
+    <small id="line-ps" style="color: red;">PS: 感谢Appraacher Studio支付了75美金的域名恢复费用，让大家可以享受本服务</small>
     <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0 24px; gap: 10px; align-items: center; flex-wrap: wrap;">
         <button id="lang-toggle"
                 type="button"
@@ -632,9 +633,9 @@
             中文 / EN
         </button>
     </div>
-    <small style="color: red;">【注意！本次部分学科的考试将不会出现在本列表中】</small>
-    <small style="color: red;">【请核对自己的课表，若发现未显示的科目，请联系学科老师确认时间和地点】</small>
-    <small
+    <small id="line-notice1" style="color: red;">【注意！本次部分学科的考试将不会出现在本列表中】</small>
+    <small id="line-notice2" style="color: red;">【请核对自己的课表，若发现未显示的科目，请联系学科老师确认时间和地点】</small>
+    <small id="line-findhint"
     >如果查不到，请使用希悦档案的名字查询，并尝试自己名字+毕业学年（如张三-高中2026届），如果还是找不到，请以这个文件内的名字查询：<a
             href="./studentNamesList.txt"
     >studentNamesList.txt</a
@@ -713,6 +714,7 @@
             title: "BRS考试时刻表查询系统",
             updated: "已经更新2025-2026学年第1学期期末考试，请同学们查收",
             permLink: "本网站的永久链接是：https://brsexam.approacher.org/，若您目前在使用临时链接，请保存收藏以免丢失",
+            psNote: "PS: 感谢Appraacher Studio支付了75美金的域名恢复费用，让大家可以享受本服务",
             notice1: "【注意！本次部分学科的考试将不会出现在本列表中】",
             notice2: "【请核对自己的课表，若发现未显示的科目，请联系学科老师确认时间和地点】",
             findHint:
@@ -761,6 +763,8 @@
             updated: "Updated for 2025–2026 Semester 1 Final Exams",
             permLink:
                 "Permanent link: https://brsexam.approacher.org/ (if you're using a temporary link, please bookmark it)",
+            psNote:
+                "PS: thanks to Appraacher Studio for covering the USD 75 domain restoration fee, so everyone can keep using this service",
             notice1: "[Notice] Some subjects may not be listed",
             notice2:
                 "[Notice] Please double-check your timetable; if any subjects are missing, contact your subject teacher",
@@ -820,19 +824,20 @@
         document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
         setText("h1", t("title"));
 
-        // The page has several <small> blocks; update them by their current order.
-        const smalls = document.querySelectorAll("small");
-        if (smalls[0]) smalls[0].textContent = t("updated");
-        if (smalls[1]) smalls[1].textContent = t("permLink");
-        if (smalls[2]) smalls[2].textContent = t("notice1");
-        if (smalls[3]) smalls[3].textContent = t("notice2");
-        if (smalls[4]) {
+        // Header lines: address them by id (order-independent, survives new lines).
+        setText("#line-updated", t("updated"));
+        setText("#line-permalink", t("permLink"));
+        setText("#line-ps", t("psNote"));
+        setText("#line-notice1", t("notice1"));
+        setText("#line-notice2", t("notice2"));
+
+        const findHint = document.querySelector("#line-findhint");
+        if (findHint) {
             // Keep the link, but localize the prefix text.
-            const link = smalls[4].querySelector("a");
-            const prefix = document.createTextNode(t("findHint"));
-            smalls[4].innerHTML = "";
-            smalls[4].appendChild(prefix);
-            smalls[4].appendChild(link);
+            const link = findHint.querySelector("a");
+            findHint.innerHTML = "";
+            findHint.appendChild(document.createTextNode(t("findHint")));
+            if (link) findHint.appendChild(link);
         }
 
         const teacherLink = document.querySelector("#teacher-link");
@@ -897,19 +902,14 @@
         }
     }
 
-    // Show which language you will switch TO, so the label always reflects state
-    function syncLangBtn() {
-        const btn = document.querySelector("#lang-toggle");
-        if (btn) btn.textContent = lang === "zh" ? "EN" : "中文";
-    }
-
+    // The language switch keeps the official site's static "中文 / EN" label,
+    // so it does not need to be re-labelled when switching languages.
     const langToggleBtn = document.querySelector("#lang-toggle");
     if (langToggleBtn) {
         langToggleBtn.addEventListener("click", () => {
             lang = lang === "zh" ? "en" : "zh";
             localStorage.setItem(LANG_KEY, lang);
             applyLanguage();
-            syncLangBtn();
             // re-render current result (or message) in the new language
             if (lastStudentSessions && lastStudentName) {
                 renderSchedule(lastStudentName, lastStudentSessions);
@@ -918,7 +918,6 @@
             }
         });
     }
-    syncLangBtn();
 
     // ---- Name lookup (tolerant to stray spaces / letter case) ----
     function escapeHtml(value) {
