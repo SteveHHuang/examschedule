@@ -4,6 +4,9 @@
     <meta charset="utf-8"/>
     <meta content="查询个人考试时间和地点" name="description"/>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
+    <meta content="#121417" media="(prefers-color-scheme: dark)" name="theme-color"/>
+    <link href="./favicon.svg" rel="icon" type="image/svg+xml"/>
 
     <title>Test Schedule</title>
     <style>
@@ -387,6 +390,53 @@
             color: #007779;
         }
 
+        /* ---- Status messages (loading / no result) ---- */
+        .loading,
+        .no-result {
+            max-width: 70ch;
+            margin: 32px auto;
+            padding: 14px 16px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            background: #fff;
+            border: 2px solid #000;
+            box-shadow: 3px 2px 0 #000;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .loading:hover,
+        .no-result:hover {
+            box-shadow: 4px 3px 0 #000;
+        }
+
+        .no-result .suggestions {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 400;
+        }
+
+        .no-result .suggestion {
+            cursor: pointer;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .no-result .hint {
+            display: block;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0.75;
+        }
+
+        .retry-btn {
+            margin-top: 12px;
+        }
+
         /* ---- Dark mode ---- */
         #theme-toggle {
             position: fixed;
@@ -450,8 +500,17 @@
         html[data-theme="dark"] .test-session:hover,
         html[data-theme="dark"] .fk:hover,
         html[data-theme="dark"] .info:hover,
-        html[data-theme="dark"] p.err:hover {
+        html[data-theme="dark"] p.err:hover,
+        html[data-theme="dark"] .loading:hover,
+        html[data-theme="dark"] .no-result:hover {
             box-shadow: 6px 4px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] .loading,
+        html[data-theme="dark"] .no-result {
+            background: #1e2126;
+            border-color: #d8d8d8;
+            box-shadow: 3px 2px 0 #d8d8d8;
         }
 
         html[data-theme="dark"] span {
@@ -511,9 +570,9 @@
             document.documentElement.setAttribute("data-theme", theme);
         })();
     </script>
-    <link href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <link href="./vendor/jquery-ui.min.css" rel="stylesheet">
+    <script src="./vendor/jquery-3.6.0.min.js"></script>
+    <script src="./vendor/jquery-ui.min.js"></script>
 </head>
 
 <body>
@@ -534,11 +593,11 @@
     <small style="color: red;">【请核对自己的课表，若发现未显示的科目，请联系学科老师确认时间和地点】</small>
     <small
     >如果查不到，请使用希悦档案的名字查询，并尝试自己名字+毕业学年（如张三-高中2026届），如果还是找不到，请以这个文件内的名字查询：<a
-            href="/studentNamesList.txt"
+            href="./studentNamesList.txt"
     >studentNamesList.txt</a
     ></small>
     <p id="teacher-link" style="color: #007779; text-align: center; margin: 0">
-        教师监考查询：请访问<a href="/teacher.html">教师版</a>
+        教师监考查询：请访问<a href="./teacher.html">教师版</a>
     </p>
     <form>
     <!--
@@ -590,7 +649,7 @@
                 </p>
 
                 <p id="contact-notice">
-                    本版本增加了导入苹果日历的功能和中英文的切换，如果有任何的bug或是建议，请联系开发者。
+                    本版本增加了深色模式（右上角可切换），如果有任何的bug或是建议，请联系开发者。
                 </p>
 
                 <p id="contact-info">
@@ -644,6 +703,15 @@
                 "本版本增加了深色模式（右上角可切换），如果有任何的bug或是建议，请联系开发者。",
             contactEmailLabel: "电子邮箱 Email:",
             contactDingtalkLabel: "钉钉 Dingtalk:",
+
+            // status messages
+            loading: "正在加载考试数据…",
+            noResult: "没有查找到考试信息",
+            didYouMean: "你是不是要找：",
+            noResultHint: "可点击上方姓名直接查询；若确实查不到，请联系相关负责人确认名单。",
+            loadFailTitle: "无法获取考试信息",
+            loadFailHint: "请检查网络连接后重试。",
+            retry: "重试",
         },
         en: {
             title: "BRS Exam Schedule Lookup System",
@@ -684,6 +752,15 @@
                 "This version adds a dark mode (toggle in the top-right corner). If you notice any bugs or have suggestions, please contact the developer.",
             contactEmailLabel: "Email:",
             contactDingtalkLabel: "Dingtalk:",
+
+            // status messages
+            loading: "Loading exam data…",
+            noResult: "No exam session found",
+            didYouMean: "Did you mean: ",
+            noResultHint: "Tap a suggested name above to search it. If it is still missing, please contact the exam coordinator.",
+            loadFailTitle: "Unable to load exam sessions",
+            loadFailHint: "Please check your connection and try again.",
+            retry: "Retry",
         },
     };
 
@@ -777,16 +854,112 @@
         }
     }
 
+    // Show which language you will switch TO, so the label always reflects state
+    function syncLangBtn() {
+        const btn = document.querySelector("#lang-toggle");
+        if (btn) btn.textContent = lang === "zh" ? "EN" : "中文";
+    }
+
     const langToggleBtn = document.querySelector("#lang-toggle");
     if (langToggleBtn) {
         langToggleBtn.addEventListener("click", () => {
             lang = lang === "zh" ? "en" : "zh";
             localStorage.setItem(LANG_KEY, lang);
             applyLanguage();
-            // re-render schedule in new language if we have it
+            syncLangBtn();
+            // re-render current result (or message) in the new language
             if (lastStudentSessions && lastStudentName) {
                 renderSchedule(lastStudentName, lastStudentSessions);
+            } else if (lastQueryName) {
+                renderNoResult(lastQueryName, lastSuggestions || []);
             }
+        });
+    }
+    syncLangBtn();
+
+    // ---- Name lookup (tolerant to stray spaces / letter case) ----
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function normalizeName(value) {
+        return String(value).trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function buildNameIndex(data) {
+        const index = new Map();
+        Object.keys(data).forEach((name) => {
+            const spaced = normalizeName(name);
+            const compact = spaced.replace(/\s+/g, "");
+            if (!index.has(spaced)) index.set(spaced, name);
+            if (!index.has(compact)) index.set(compact, name);
+        });
+        return index;
+    }
+
+    function suggestNames(index, data, input) {
+        const key = normalizeName(input).replace(/\s+/g, "");
+        if (!key) return [];
+        return Object.keys(data)
+            .map((name) => {
+                const k = normalizeName(name).replace(/\s+/g, "");
+                let score = -1;
+                if (k === key) score = 0;
+                else if (k.startsWith(key)) score = 1;
+                else if (k.includes(key)) score = 2;
+                return { name, score };
+            })
+            .filter((x) => x.score >= 0)
+            .sort((a, b) => a.score - b.score || a.name.localeCompare(b.name, "zh"))
+            .slice(0, 5)
+            .map((x) => x.name);
+    }
+
+    function runSearch(rawName) {
+        const input = String(rawName || "").trim();
+        const result = lookupStudent(input);
+        lastQueryName = input;
+        lastStudentName = result.name || input;
+        lastStudentSessions = result.sessions || null;
+        lastSuggestions = result.suggestions || [];
+        setDownloadEnabled(Boolean(result.sessions));
+        if (result.sessions) {
+            renderSchedule(lastStudentName, result.sessions);
+        } else {
+            renderNoResult(input, lastSuggestions);
+        }
+    }
+
+    function renderNoResult(query, suggestions) {
+        const schedule = document.querySelector("#schedule");
+        if (!schedule) return;
+        const suggestionHtml = suggestions.length
+            ? `<div class="suggestions">${escapeHtml(t("didYouMean"))}${suggestions
+                  .map(
+                      (name) =>
+                          `<button type="button" class="suggestion" data-name="${escapeHtml(name)}">${escapeHtml(name)}</button>`
+                  )
+                  .join("")}</div>`
+            : "";
+        schedule.innerHTML = `
+            <div class="no-result">
+                ${escapeHtml(t("noResult"))}${query ? (lang === "en" ? ": " : "：") + escapeHtml(query) : ""}
+                ${suggestionHtml}
+                <span class="hint">${escapeHtml(t("noResultHint"))}</span>
+            </div>
+        `;
+        schedule.querySelectorAll(".suggestion").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const name = btn.getAttribute("data-name");
+                const input = document.querySelector("#student-name");
+                if (input) input.value = name;
+                runSearch(name);
+            });
         });
     }
 
@@ -986,6 +1159,8 @@
     let showCheck = false;
     let lastStudentName = "";
     let lastStudentSessions = null;
+    let lastQueryName = "";
+    let lastSuggestions = [];
 
     const showCheckbox = document.querySelector("#checkbox-show");
     const showCheckboxIndicator = document.querySelector(
@@ -1003,8 +1178,8 @@
                 const schedule = document.querySelector("#schedule");
                 schedule.innerHTML = "";
 
-                if (!testSessions) {
-                        schedule.innerHTML = `<p class="err">${t("errNoData")}</p>`;
+                if (!testSessions || !testSessions.length) {
+                        renderNoResult(studentName, []);
                         return;
                 }
 
@@ -1053,12 +1228,37 @@
         }
     });
 
-    fetch("/testSessionsByStudent.json")
+    // Show a loading state before the (rather large) data file arrives
+    const scheduleEl = document.querySelector("#schedule");
+    if (scheduleEl) {
+        scheduleEl.innerHTML = `<p class="loading">${escapeHtml(t("loading"))}</p>`;
+    }
+
+    fetch("./testSessionsByStudent.json")
         .then((res) => res.json())
         .then((testSessionsByStudent) => {
             const form = document.querySelector("form");
 
             const studentNames = Object.keys(testSessionsByStudent);
+            const nameIndex = buildNameIndex(testSessionsByStudent);
+
+            // Tolerant lookup: exact → case-insensitive → space-insensitive
+            window.lookupStudent = function (input) {
+                const raw = String(input || "").trim();
+                if (!raw) return { suggestions: [] };
+                if (testSessionsByStudent[raw]) {
+                    return { name: raw, sessions: testSessionsByStudent[raw] };
+                }
+                const compactKey = normalizeName(raw).replace(/\s+/g, "");
+                const hit = nameIndex.get(compactKey) || nameIndex.get(normalizeName(raw));
+                if (hit) {
+                    return { name: hit, sessions: testSessionsByStudent[hit] };
+                }
+                return { suggestions: suggestNames(nameIndex, testSessionsByStudent, raw) };
+            };
+
+            // Clear the loading state
+            if (scheduleEl) scheduleEl.innerHTML = "";
             
             $(document).ready(function () {
                 $("#student-name").autocomplete({
@@ -1068,16 +1268,8 @@
 
             form.addEventListener("submit", (event) => {
                 event.preventDefault();
-
                 const studentName = document.querySelector("#student-name").value;
-
-                const testSessions = testSessionsByStudent[studentName];
-
-                // update export state
-                lastStudentName = studentName;
-                lastStudentSessions = testSessions || null;
-                setDownloadEnabled(Boolean(testSessions));
-                renderSchedule(studentName, testSessions);
+                runSearch(studentName);
             });
 
             function doDownload(locale) {
@@ -1106,8 +1298,18 @@
             setDownloadEnabled(false);
         })
         .catch((err) => {
-            document.querySelector("body").innerHTML =
-                `<p class="err">${t("errFetch")}</p>`;
+            console.error(err);
+            if (!scheduleEl) return;
+            // Keep the page intact (don't wipe the body) and offer a retry.
+            scheduleEl.innerHTML = `
+                <div class="no-result">
+                    ${escapeHtml(t("loadFailTitle"))}
+                    <span class="hint">${escapeHtml(t("loadFailHint"))}</span>
+                    <button type="button" class="suggestion retry-btn" id="retry-btn">${escapeHtml(t("retry"))}</button>
+                </div>
+            `;
+            const retryBtn = document.getElementById("retry-btn");
+            if (retryBtn) retryBtn.addEventListener("click", () => location.reload());
         });
 </script>
 <script>
