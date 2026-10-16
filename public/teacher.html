@@ -760,6 +760,7 @@
             noResult: "没有查找到考试信息",
             didYouMean: "你是不是要找：",
             noResultHint: "可点击上方姓名直接查询；若确实查不到，请联系相关负责人确认名单。",
+            noResultHintEmpty: "没有找到相近的名字；若确实查不到，请联系相关负责人确认名单。",
             loadFailTitle: "无法获取考试信息",
             loadFailHint: "请检查网络连接后重试。",
             retry: "重试",
@@ -807,6 +808,7 @@
             noResult: "No proctoring session found",
             didYouMean: "Did you mean: ",
             noResultHint: "Tap a suggested name above to search it. If it is still missing, please contact the exam coordinator.",
+            noResultHintEmpty: "No similar name found. If it is still missing, please contact the exam coordinator.",
             loadFailTitle: "Unable to load proctoring sessions",
             loadFailHint: "Please check your connection and try again.",
             retry: "Retry",
@@ -994,7 +996,7 @@
             <div class="no-result">
                 ${escapeHtml(t("noResult"))}${query ? (lang === "en" ? ": " : "：") + escapeHtml(query) : ""}
                 ${suggestionHtml}
-                <span class="hint">${escapeHtml(t("noResultHint"))}</span>
+                <span class="hint">${escapeHtml(t(suggestions.length ? "noResultHint" : "noResultHintEmpty"))}</span>
             </div>
         `;
         schedule.querySelectorAll(".suggestion").forEach((btn) => {
