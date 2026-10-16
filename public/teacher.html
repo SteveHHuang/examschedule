@@ -124,7 +124,9 @@
         #schedule {
             display: grid;
             gap: 10px;
-            grid-template-columns: repeat(auto-fit, minmax(min(90vw, 400px), 1fr));
+            /* Wide cards: at least 640px before a second column is considered, so
+               a card is long enough for the whole proctor line on one row. */
+            grid-template-columns: repeat(auto-fit, minmax(min(90vw, 640px), 1fr));
             width: 100%;
             margin: 64px auto 48px;
         }
