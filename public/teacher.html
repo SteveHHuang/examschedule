@@ -47,7 +47,15 @@
             margin: 64px 0 10px;
             padding: 0;
             font-weight: 700;
-            color: #4a3b16;
+            /* Same colour as the body text — the old golden brown read as "yellow". */
+            color: #2c2415;
+        }
+
+        /* Styled here instead of inline, so the dark theme can override it. */
+        #student-link {
+            color: #007779;
+            text-align: center;
+            margin: 0;
         }
 
         small:first-of-type {
@@ -570,7 +578,12 @@
             fill: #e8e8e8;
         }
 
-        html[data-theme="dark"] #teacher-link {
+        html[data-theme="dark"] h1 {
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] #teacher-link,
+        html[data-theme="dark"] #student-link {
             color: #2dd4d8;
         }
 
@@ -636,7 +649,7 @@
             中文 / EN
         </button>
     </div>
-    <p id="student-link" style="color: #007779; text-align: center; margin: 0">
+    <p id="student-link">
         学生考试查询：请访问<a href="./index.html">学生版</a>
     </p>
 

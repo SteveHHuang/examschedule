@@ -46,6 +46,13 @@
             font-weight: 700;
         }
 
+        /* Styled here instead of inline, so the dark theme can override it. */
+        #teacher-link {
+            color: #007779;
+            text-align: center;
+            margin: 0;
+        }
+
         small:first-of-type {
             margin: 0 0 10px 0;
         }
@@ -568,7 +575,12 @@
             fill: #e8e8e8;
         }
 
-        html[data-theme="dark"] #teacher-link {
+        html[data-theme="dark"] h1 {
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] #teacher-link,
+        html[data-theme="dark"] #student-link {
             color: #2dd4d8;
         }
 
@@ -634,7 +646,7 @@
             中文 / EN
         </button>
     </div>
-    <p id="teacher-link" style="color: #007779; text-align: center; margin: 0">
+    <p id="teacher-link">
         教师监考查询：请访问<a href="./teacher.html">教师版</a>
     </p>
     <form>
