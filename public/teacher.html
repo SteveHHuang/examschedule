@@ -138,10 +138,13 @@
             box-shadow: 3px 2px 0 #000;
             transition: all 0.2s ease-in-out;
 
+            /* Give the proctor column the leftover space so long names fit. */
+            grid-template-columns: auto minmax(0, 1fr);
+            column-gap: 14px;
             grid-template-areas:
-                "meta meta"
-                "students students"
-                "location proctors";
+          "meta meta"
+          "students students"
+          "location proctors";
         }
 
         .test-session:hover {
@@ -166,19 +169,44 @@
         .test-session > div:last-child {
             text-align: right;
             grid-area: proctors;
+            display: flex;
+            justify-content: flex-end;
+            align-items: baseline;
+            gap: 0.2em;
+            min-width: 0;
+        }
+
+        /* The "by … proctored" wording must stay whole so this line never wraps. */
+        .test-session > div:last-child > span:not(.proctor-name) {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        /* Names keep their natural width as well; only the widest ones shorten
+           (with an ellipsis) when a card is too narrow, so cards stay equal height. */
+        .test-session .proctor-name {
+            flex: 0 0 auto;
+            min-width: 0;
+            font-weight: normal;
+            color: inherit;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         @media (max-width: 700px) {
             .test-session {
+                grid-template-columns: 1fr;
                 grid-template-areas:
-                    "meta"
-                    "students"
-                    "location"
-                    "proctors";
+            "meta"
+            "students"
+            "location"
+            "proctors";
             }
 
             .test-session > div:last-child {
                 text-align: left;
+                justify-content: flex-start;
                 grid-area: proctors;
             }
         }
@@ -1200,14 +1228,50 @@
                                 </div>
 
                                 <div>
-                                    <span>${t("proctoredBy1")}</span>${session.proctor1}<span>${t("proctoredBy2")}</span>${
-                                            session.proctor2
-                                    }<span>${t("proctoredBy3")}</span>
+                                    <span>${t("proctoredBy1")}</span><span
+                                        class="proctor-name"
+                                        title="${escapeHtml(session.proctor1 || "")}"
+                                    >${escapeHtml(session.proctor1 || "")}</span><span>${t("proctoredBy2")}</span><span
+                                        class="proctor-name"
+                                        title="${escapeHtml(session.proctor2 || "")}"
+                                    >${escapeHtml(session.proctor2 || "")}</span><span>${t("proctoredBy3")}</span>
                                 </div>
                             </div>
                         `;
                 }
+
+                fitProctorNames();
         }
+
+    // A single very long proctor name would otherwise wrap and make its whole row
+    // of cards taller than the others. Only the widest names are allowed to
+    // shorten (with an ellipsis), so every card keeps the same height.
+    function fitProctorNames() {
+        document.querySelectorAll(".test-session").forEach((card) => {
+            const row = card.lastElementChild;
+            if (!row) return;
+            const names = Array.from(row.querySelectorAll(".proctor-name"));
+            if (!names.length) return;
+            const items = Array.from(row.children);
+            const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+            const overflow = () => {
+                const total =
+                    items.reduce((sum, el) => sum + el.getBoundingClientRect().width, 0) +
+                    gap * (items.length - 1);
+                return total - row.clientWidth;
+            };
+            names.forEach((name) => {
+                name.style.flexShrink = "0";
+            });
+            const widestFirst = names
+                .slice()
+                .sort((a, b) => b.scrollWidth - a.scrollWidth);
+            for (const name of widestFirst) {
+                if (overflow() <= 0.5) break;
+                name.style.flexShrink = "1";
+            }
+        });
+    }
 
     showCheckbox.addEventListener("change", () => {
         showCheck = showCheckbox.checked;
