@@ -65,8 +65,12 @@ typings/
 .next
 
 testbom.csv
+
+# Name lists are committed on purpose: students/proctors open them to find the
+# exact spelling of their own name (the site links to both files).
+# The *.json data files are generated at build time (see src/cli.ts),
+# so they stay out of the repository.
 testSessionsByStudent.json
-studentNamesList.txt
-proctorNamesList.txt
 testSessionsByProctor.json
+
 .DS_Store
