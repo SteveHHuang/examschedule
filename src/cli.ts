@@ -127,11 +127,11 @@ export async function processFile(
         }
 
         // const dedup = Object.fromEntries(Object.entries(testSessionsByProctor).map(([proc, sesss]) => [proc, [...new Set(sesss)]]));
-        // merge test sessions for each proctor by same date an time
+        // merge test sessions for each proctor by same date, time, subject and location
         const dedup: Record<string, TestSession[]> = {};
         Object.entries(testSessionsByProctor).forEach(([proc, sesss]) => {
             const deduped = sesss.reduce((acc, curr) => {
-                const key = `${curr.examDate}-${curr.examTime}`;
+                const key = `${curr.examDate}-${curr.examTime}-${curr.subject}-${curr.location}`;
                 if (!acc[key]) {
                     acc[key] = curr;
                 } else {
