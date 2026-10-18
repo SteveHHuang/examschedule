@@ -154,13 +154,11 @@
             box-shadow: 3px 2px 0 #000;
             transition: all 0.2s ease-in-out;
 
-            /* Give the proctor column the leftover space so long names fit. */
-            grid-template-columns: auto minmax(0, 1fr);
-            column-gap: 14px;
+            grid-template-columns: 1fr;
             grid-template-areas:
-          "meta meta"
-          "students students"
-          "location proctors";
+          "meta"
+          "students"
+          "location";
         }
 
         .test-session:hover {
@@ -177,40 +175,9 @@
             grid-area: students;
         }
 
-        .test-session > div:nth-last-child(2) {
+        .test-session .session-location {
             text-align: left;
             grid-area: location;
-        }
-
-        .test-session > div:last-child {
-            text-align: right;
-            grid-area: proctors;
-            display: flex;
-            justify-content: flex-end;
-            align-items: baseline;
-            gap: 0.2em;
-            min-width: 0;
-            /* Safety net: even if the fit logic is skipped, this line can never
-               spill left over the "location" text. */
-            overflow: hidden;
-        }
-
-        /* The "by … proctored" wording must stay whole so this line never wraps. */
-        .test-session > div:last-child > span:not(.proctor-name) {
-            flex: 0 0 auto;
-            white-space: nowrap;
-        }
-
-        /* Names keep their natural width as well; only the widest ones shorten
-           (with an ellipsis) when a card is too narrow, so cards stay equal height. */
-        .test-session .proctor-name {
-            flex: 0 0 auto;
-            min-width: 0;
-            font-weight: normal;
-            color: inherit;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         @media (max-width: 700px) {
@@ -219,14 +186,7 @@
                 grid-template-areas:
             "meta"
             "students"
-            "location"
-            "proctors";
-            }
-
-            .test-session > div:last-child {
-                text-align: left;
-                justify-content: flex-start;
-                grid-area: proctors;
+            "location";
             }
         }
 
@@ -764,9 +724,6 @@
             total: "共计",
             people: "人",
             location: "考试地点：",
-            proctoredBy1: "由",
-            proctoredBy2: "和",
-            proctoredBy3: "监考",
 
             // footer / disclaimer
             contribHtml: `这是一个 <a href="https://fsf.org">自由软件</a> 项目，由 <a href="https://github.com/plushugh/examschedule">@plushugh</a> 开发，目前使用版本由 <a href="https://github.com/SteveHHuang/examschedule">@SteveHHuang</a> 运营维护。`,
@@ -810,9 +767,6 @@
             total: "Total ",
             people: "",
             location: "Location: ",
-            proctoredBy1: "Proctored by ",
-            proctoredBy2: " and ",
-            proctoredBy3: "",
 
             // footer / disclaimer
             contribHtml: `This is a <a href="https://fsf.org">Free Software</a> project, developed by <a href="https://github.com/plushugh/examschedule">@plushugh</a> on GitHub, currently maintained by <a href="https://github.com/SteveHHuang/examschedule">@SteveHHuang</a>.`,
@@ -1238,25 +1192,6 @@
                 const schedule = document.querySelector("#schedule");
                 schedule.innerHTML = "";
 
-                function splitProctorNames(s) {
-                    return (s || "").trim().split(/[\n、,，]/).map(x => x.trim()).filter(x => x && x !== "/" && x !== "\\" && x !== "-");
-                }
-
-                function formatProctors(session) {
-                    const names = [...new Set([
-                        ...splitProctorNames(session.proctor1),
-                        ...splitProctorNames(session.proctor2),
-                    ])];
-                    if (names.length === 0) {
-                        return `<span>${t("proctoredBy1")}</span><span>${t("proctoredBy3")}</span>`;
-                    }
-                    if (names.length === 1) {
-                        return `<span>${t("proctoredBy1")}</span><span class="proctor-name" title="${escapeHtml(names[0])}">${escapeHtml(names[0])}</span><span>${t("proctoredBy3")}</span>`;
-                    }
-                    const rest = names.slice(1).join("、");
-                    return `<span>${t("proctoredBy1")}</span><span class="proctor-name" title="${escapeHtml(names[0])}">${escapeHtml(names[0])}</span><span>${t("proctoredBy2")}</span><span class="proctor-name" title="${escapeHtml(rest)}">${escapeHtml(rest)}</span><span>${t("proctoredBy3")}</span>`;
-                }
-
                 if (!testSessions || !testSessions.length) {
                         renderNoResult(proctorName, []);
                         return;
@@ -1264,13 +1199,16 @@
 
                 for (const session of testSessions) {
                         const dateTime = `${session["examDate"]} ${session.examTime}`;
+                        const classList = session.classes && session.classes.length
+                                ? session.classes.join("、")
+                                : `${session.grade}${session.classNum ? " " + session.classNum : ""}`;
                         schedule.innerHTML += `
                             <div class="test-session">
                                 <div>
                                     <div>
                                         ${dateTime}<br><span>${t("len")}</span> ${session.minutes} <span>${t("minutes")}</span>
                                     </div>
-                                    <div>${session.subject} ${session.grade}${session.classNum ? " " + session.classNum : ""}</div>
+                                    <div>${classList}</div>
                                 </div>
 
                                 ${
@@ -1283,60 +1221,13 @@
                                                 : ""
                                 }
 
-                                <div>
+                                <div class="session-location">
                                     <span>${t("location")}</span>${session.location}
-                                </div>
-
-                                <div>
-                                    ${formatProctors(session)}
                                 </div>
                             </div>
                         `;
                 }
-
-                fitProctorNames();
         }
-
-    // A single very long proctor name would otherwise wrap and make its whole row
-    // of cards taller than the others. Only the widest names are allowed to
-    // shorten (with an ellipsis), so every card keeps the same height.
-    function fitProctorNames() {
-        document.querySelectorAll(".test-session").forEach((card) => {
-            const row = card.lastElementChild;
-            if (!row) return;
-            const names = Array.from(row.querySelectorAll(".proctor-name"));
-            if (!names.length) return;
-            const items = Array.from(row.children);
-            const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
-            const overflow = () => {
-                const total =
-                    items.reduce((sum, el) => sum + el.getBoundingClientRect().width, 0) +
-                    gap * (items.length - 1);
-                return total - row.clientWidth;
-            };
-            names.forEach((name) => {
-                name.style.flexShrink = "0";
-            });
-            const widestFirst = names
-                .slice()
-                .sort((a, b) => b.scrollWidth - a.scrollWidth);
-            for (const name of widestFirst) {
-                if (overflow() <= 0.5) break;
-                name.style.flexShrink = "1";
-            }
-        });
-    }
-
-    // Re-fit whenever the layout can change (window resize / web-font load),
-    // otherwise a narrow window could leave the line overflowing again.
-    let proctorFitTimer = 0;
-    window.addEventListener("resize", () => {
-        clearTimeout(proctorFitTimer);
-        proctorFitTimer = setTimeout(fitProctorNames, 120);
-    });
-    if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => fitProctorNames());
-    }
 
     showCheckbox.addEventListener("change", () => {
         showCheck = showCheckbox.checked;

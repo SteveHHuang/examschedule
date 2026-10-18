@@ -13,6 +13,23 @@ interface TestSession {
     proctor2: string | null;
     numOfStudents: string;
     students: string[];
+    // For the proctor view: list of "grade classNum" identifiers grouped by time/location.
+    classes?: string[];
+}
+
+function classIdentifiers(grade: string, classNum: string): string[] {
+    const g = (grade || "").trim();
+    return (classNum || "")
+        .split(",")
+        .map((c) => c.trim())
+        .filter((c) => c.length > 0)
+        .map((c) => (g ? `${g} ${c}` : c));
+}
+
+function sumNumberString(a: string, b: string): string {
+    const numsA = (a || "").split(",").map((n) => parseInt(n.trim(), 10)).filter((n) => !isNaN(n));
+    const numsB = (b || "").split(",").map((n) => parseInt(n.trim(), 10)).filter((n) => !isNaN(n));
+    return String([...numsA, ...numsB].reduce((sum, n) => sum + n, 0));
 }
 
 export async function exportIcsFromJson(
@@ -162,12 +179,47 @@ export async function processFile(
             dedup[proc] = Object.values(deduped);
         });
 
+        // Group proctor sessions by time+location for a class-centric view.
+        const proctorClassView: Record<string, TestSession[]> = {};
+        Object.entries(dedup).forEach(([proc, sesss]) => {
+            const grouped = sesss.reduce((acc, curr) => {
+                const key = `${curr.examDate}-${curr.examTime}-${curr.location}`;
+                if (!acc[key]) {
+                    acc[key] = { ...curr };
+                    acc[key].classes = classIdentifiers(curr.grade, curr.classNum);
+                } else {
+                    acc[key].students = [...acc[key].students, ...curr.students];
+                    acc[key].classes = [
+                        ...new Set([
+                            ...(acc[key].classes || []),
+                            ...classIdentifiers(curr.grade, curr.classNum),
+                        ]),
+                    ];
+                    acc[key].numOfStudents = sumNumberString(
+                        acc[key].numOfStudents,
+                        curr.numOfStudents,
+                    );
+                }
+                return acc;
+            }, {} as Record<string, TestSession>);
+
+            proctorClassView[proc] = Object.values(grouped).map((s) => ({
+                ...s,
+                subject: "",
+                grade: "",
+                classNum: "",
+                proctor1: "",
+                proctor2: null,
+                classes: (s.classes || []).slice().sort(),
+            }));
+        });
+
         // const jsonData = JSON.stringify(testSessionsByStudent, null, 2);
         const jsonData = JSON.stringify(testSessionsByStudent); // Saves precious bytes
-        const jsonDataProctor = JSON.stringify(dedup); // Saves precious bytes
+        const jsonDataProctor = JSON.stringify(proctorClassView); // Saves precious bytes
 
         const studentList = Object.keys(testSessionsByStudent).sort().join("\n");
-        const proctorList = Object.keys(dedup).sort().join("\n");
+        const proctorList = Object.keys(proctorClassView).sort().join("\n");
 
         Deno.writeTextFile(studentNamesListOutputFilename, studentList);
         Deno.writeTextFile(proctorNamesListOutputFilename, proctorList);
