@@ -1136,10 +1136,11 @@
             const dtStart = formatLocalDateTime(year, month, day, startHour, startMin);
             const dtEnd = formatLocalDateTime(year, month, day, endHour, endMin);
 
+            const classPart = s.classNum ? s.classNum : "";
             const summary =
                 locale === "en"
-                    ? `${s.subject} (${s.grade}${s.classNum})`
-                    : `${s.subject} (${s.grade}${s.classNum})`;
+                    ? `${s.subject} (${s.grade}${classPart})`
+                    : `${s.subject} (${s.grade}${classPart})`;
             const location = s.location;
             const proctors = [s.proctor1, s.proctor2].filter(Boolean).join(" / ");
 
@@ -1262,7 +1263,7 @@
                                     <div>
                                         ${dateTime}<br><span>${t("len")}</span> ${session.minutes} <span>${t("minutes")}</span>
                                     </div>
-                                    <div>${session.subject} ${session.grade} ${session.classNum}</div>
+                                    <div>${session.subject} ${session.grade}${session.classNum ? " " + session.classNum : ""}</div>
                                 </div>
 
                                 ${
