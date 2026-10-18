@@ -1138,10 +1138,11 @@
             const proctors = [s.proctor1, s.proctor2].filter(Boolean).join(" / ");
 
             // Language toggles: subject stays as-is, but labels change.
+            const classPart = s.classNum ? s.classNum : "";
             const summary =
                 locale === "en"
-                    ? `Proctor: ${s.subject} (${s.grade}${s.classNum})`
-                    : `监考: ${s.subject} (${s.grade}${s.classNum})`;
+                    ? `Proctor: ${s.subject} (${s.grade}${classPart})`
+                    : `监考: ${s.subject} (${s.grade}${classPart})`;
 
             const descriptionParts = [];
             if (locale === "en") {
@@ -1255,7 +1256,7 @@
                                     <div>
                                         ${dateTime}<br><span>${t("len")}</span> ${session.minutes} <span>${t("minutes")}</span>
                                     </div>
-                                    <div>${session.subject} ${session.grade} ${session.classNum}</div>
+                                    <div>${session.subject} ${session.grade}${session.classNum ? " " + session.classNum : ""}</div>
                                 </div>
 
                                 ${
