@@ -74,10 +74,3 @@ testSessionsByStudent.json
 testSessionsByProctor.json
 
 .DS_Store
-
-# These files exist locally for Vultr deployment but are not pushed because the
-# current GitHub OAuth token lacks the `workflow` scope required to update
-# `.github/workflows`. They can be added manually when the token has workflow
-# permissions, or uploaded directly via the GitHub web UI.
-.github/workflows/deploy-vultr.yml
-Caddyfile
