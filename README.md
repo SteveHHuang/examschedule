@@ -68,7 +68,7 @@ python3 -m http.server 8000 --directory public
 
 ### Prerequisites
 
-Use `npm ci` to install the Deno version recorded in `package-lock.json` (currently 2.6.5). GitHub Actions and the Netlify build script use the same npm scripts and dependencies. Node.js 22 is used by CI and Netlify.
+Use `npm ci` to install the Deno version recorded in `package-lock.json` (currently 2.6.5). The Netlify build script uses the same npm scripts and dependencies as local builds. Node.js 22 is used by Netlify.
 
 The older instructions required Deno >= 1.34.0; this checkout now uses Deno 2 and a version-5 Deno lockfile.
 
@@ -175,7 +175,7 @@ The generated JSON files are ignored by Git. Both name lists are tracked intenti
 - `src/types.ts`: shared session and calendar option types.
 - `public/calendar.js`: one calendar generator for both pages and the CLI; preserves Unicode event identity, validates dates/times and folds UTF-8 lines at 75 octets.
 - `public/index.html`, `public/teacher.html`: student and proctor UI.
-- `tests/`: Deno regression tests and Python XLSX importer tests; `.github/workflows/check.yml` runs `npm run build` on pushes and pull requests.
+- `tests/`: Deno regression tests and Python XLSX importer tests. The Netlify build script runs the type checks, Deno tests and JSON generation before publishing.
 
 ### Calendar migration
 
