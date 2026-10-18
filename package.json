@@ -10,7 +10,11 @@
   ],
   "license": "MIT",
   "scripts": {
-    "generate-json": "deno run --allow-read --allow-write src/cli.ts input.csv public/testSessionsByStudent.json public/studentNamesList.txt public/testSessionsByProctor.json public/proctorNamesList.txt"
+    "generate-json": "deno run --allow-read --allow-write src/cli.ts input.csv public/testSessionsByStudent.json public/studentNamesList.txt public/testSessionsByProctor.json public/proctorNamesList.txt",
+    "validate-input": "deno run --allow-read src/cli.ts validate input.csv",
+    "check": "deno check src/cli.ts src/ics_smoke_test.ts tests/*.test.ts",
+    "test": "deno test --allow-read --allow-write --allow-run tests/",
+    "build": "npm run check && npm test && npm run generate-json"
   },
   "dependencies": {
     "deno": "^2.6.5"

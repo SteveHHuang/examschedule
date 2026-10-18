@@ -74,3 +74,7 @@ testSessionsByStudent.json
 testSessionsByProctor.json
 
 .DS_Store
+
+# Python importer cache
+__pycache__/
+*.pyc

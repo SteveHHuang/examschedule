@@ -661,7 +661,7 @@
 <button id="theme-toggle" type="button" aria-label="切换深色模式 / Toggle dark mode" title="切换深色模式 / Toggle dark mode">🌙</button>
 <div class="page">
     <h1>BRS考试时刻表查询系统</h1>
-    <small id="line-updated">已经更新2025-2026学年第1学期期末考试，请同学们查收</small>
+    <small id="line-updated">已经更新2025-2026学年第2学期期末考试，请同学们查收</small>
     <small id="line-permalink" style="color: red;">本网站的永久链接是：https://brsexam.approacher.org/，若您目前在使用临时链接，请保存收藏以免丢失</small>
     <small id="line-ps" style="color: red;">PS: 感谢Approacher Studio支付了75美金的域名恢复费用，让大家可以享受本服务</small>
     <small id="line-findhint">如果查不到，请使用希悦档案的名字查询</small>
@@ -737,7 +737,9 @@
         </div>
     </div>
 </div>
-<script>
+<script type="module">
+    import { generateIcsForSessions as generateCalendar, safeFilename as safeUid } from "./calendar.js";
+
     // ---- i18n (language switch) ----
     const LANG_KEY = "examschedule.lang";
     let lang = localStorage.getItem(LANG_KEY) || "zh"; // zh | en
@@ -745,7 +747,7 @@
     const i18n = {
         zh: {
             title: "BRS考试时刻表查询系统",
-            updated: "已经更新2025-2026学年第1学期期末考试，请同学们查收",
+            updated: "已经更新2025-2026学年第2学期期末考试，请同学们查收",
             permLink: "本网站的永久链接是：https://brsexam.approacher.org/，若您目前在使用临时链接，请保存收藏以免丢失",
             psNote: "PS: 感谢Approacher Studio支付了75美金的域名恢复费用，让大家可以享受本服务",
             findHint: "如果查不到，请使用希悦档案的名字查询",
@@ -791,7 +793,7 @@
         },
         en: {
             title: "BRS Exam Schedule Lookup System",
-            updated: "Updated for 2025–2026 Semester 1 Final Exams",
+            updated: "Updated for 2025–2026 Semester 2 Final Exams",
             permLink:
                 "Permanent link: https://brsexam.approacher.org/ (if you're using a temporary link, please bookmark it)",
             psNote:
@@ -879,7 +881,10 @@
         if (showLabel) showLabel.textContent = t("showOthers");
 
     const dlBtn = document.querySelector("#download-ics");
-    if (dlBtn) dlBtn.textContent = t("dlIcs");
+    if (dlBtn) {
+        dlBtn.textContent = t("dlIcs");
+        dlBtn.title = dlBtn.disabled ? t("dlNeedSearch") : t("dlReady");
+    }
 
         // Footer: contribution + disclaimer block
         const contrib = document.querySelector("#contrib");
@@ -993,7 +998,7 @@
 
     function runSearch(rawName) {
         const input = String(rawName || "").trim();
-        const result = lookupStudent(input);
+        const result = window.lookupStudent(input);
         lastQueryName = input;
         lastStudentName = result.name || input;
         lastStudentSessions = result.sessions || null;
@@ -1034,154 +1039,9 @@
         });
     }
 
-    // ---- iCalendar (.ics) helpers (Apple Calendar compatible) ----
-    function pad2(n) {
-        const s = String(n);
-        return s.length >= 2 ? s : `0${s}`;
-    }
-
-    function icsEscapeText(value) {
-        return String(value)
-            .replace(/\\/g, "\\\\")
-            .replace(/\r\n|\n|\r/g, "\\n")
-            .replace(/;/g, "\\;")
-            .replace(/,/g, "\\,");
-    }
-
-    function foldIcsLine(line) {
-        const limit = 75;
-        if (line.length <= limit) return line;
-        let out = "";
-        for (let i = 0; i < line.length; i += limit) {
-            const chunk = line.slice(i, i + limit);
-            out += i === 0 ? chunk : `\r\n ${chunk}`;
-        }
-        return out;
-    }
-
-    function normalizeDate(examDate) {
-        const parts = String(examDate).trim().split(/[./-]/).filter(Boolean);
-        if (parts.length < 3) throw new Error(`Unrecognized examDate format: ${examDate}`);
-        return {
-            year: Number(parts[0]),
-            month: Number(parts[1]),
-            day: Number(parts[2]),
-        };
-    }
-
-    function parseExamTime(examTime) {
-        const cleaned = String(examTime).trim();
-        const [rawStart, rawEnd] = cleaned.split("-").map((s) => s.trim());
-        if (!rawStart || !rawEnd) throw new Error(`Unrecognized examTime format: ${examTime}`);
-
-        const parseOne = (t) => {
-            if (t.includes(":")) {
-                const [hh, mm] = t.split(":");
-                return { h: Number(hh), m: Number(mm) };
-            }
-            const digits = t.replace(/[^0-9]/g, "");
-            const h = digits.length === 3 ? Number(digits.slice(0, 1)) : Number(digits.slice(0, 2));
-            const m = Number(digits.slice(-2));
-            return { h, m };
-        };
-
-        const s = parseOne(rawStart);
-        const e = parseOne(rawEnd);
-        return { startHour: s.h, startMin: s.m, endHour: e.h, endMin: e.m };
-    }
-
-    function formatLocalDateTime(y, mo, d, h, mi) {
-        return `${y}${pad2(mo)}${pad2(d)}T${pad2(h)}${pad2(mi)}00`;
-    }
-
-    function safeUid(input) {
-        return String(input)
-            .trim()
-            .replace(/\s+/g, "-")
-            .replace(/[^A-Za-z0-9._-]/g, "-")
-            .replace(/-+/g, "-")
-            .replace(/^-|-$/g, "");
-    }
-
+    // Shared calendar implementation is also used by the CLI.
     function generateIcsForSessions(ownerName, sessions, opts) {
-        const timezone = (opts && opts.timezone) || "Asia/Shanghai";
-        const calendarName = (opts && opts.calendarName) || `exam: ${ownerName}`;
-        const uidNamespace = (opts && opts.uidNamespace) || "brsexam.approacher.org";
-        const includeRoster = Boolean(opts && opts.includeRoster);
-        const locale = (opts && opts.locale) || "zh";
-
-        const now = new Date();
-        const dtstamp = `${now.getUTCFullYear()}${pad2(now.getUTCMonth() + 1)}${pad2(now.getUTCDate())}T${pad2(
-            now.getUTCHours(),
-        )}${pad2(now.getUTCMinutes())}${pad2(now.getUTCSeconds())}Z`;
-
-        const lines = [];
-        lines.push("BEGIN:VCALENDAR");
-        lines.push("VERSION:2.0");
-        lines.push("PRODID:-//examschedule//ics export//EN");
-        lines.push("CALSCALE:GREGORIAN");
-        lines.push("METHOD:PUBLISH");
-        lines.push(`X-WR-CALNAME:${icsEscapeText(calendarName)}`);
-        lines.push(`X-WR-TIMEZONE:${icsEscapeText(timezone)}`);
-
-        const sorted = [...sessions].sort((a, b) => {
-            const ak = `${a.examDate} ${a.examTime} ${a.subject}`;
-            const bk = `${b.examDate} ${b.examTime} ${b.subject}`;
-            return ak.localeCompare(bk, "zh");
-        });
-
-        for (const s of sorted) {
-            const { year, month, day } = normalizeDate(s.examDate);
-            const { startHour, startMin, endHour, endMin } = parseExamTime(s.examTime);
-            const dtStart = formatLocalDateTime(year, month, day, startHour, startMin);
-            const dtEnd = formatLocalDateTime(year, month, day, endHour, endMin);
-
-            const summary =
-                locale === "en"
-                    ? `${s.subject} (${s.grade}${s.classNum})`
-                    : `${s.subject} (${s.grade}${s.classNum})`;
-            const location = s.location;
-            const proctors = [s.proctor1, s.proctor2].filter(Boolean).join(" / ");
-
-            const descriptionParts = [];
-            if (locale === "en") {
-                descriptionParts.push(`Student: ${ownerName}`);
-                descriptionParts.push(`Time: ${s.examDate} ${s.examTime}`);
-                descriptionParts.push(`Duration: ${s.minutes} minutes`);
-                descriptionParts.push(`Proctor(s): ${proctors}`);
-                descriptionParts.push(`Students: ${s.numOfStudents}`);
-                if (includeRoster && s.students) {
-                    descriptionParts.push(`Roster: ${s.students.join(", ")}`);
-                }
-            } else {
-                descriptionParts.push(`考生: ${ownerName}`);
-                descriptionParts.push(`考试时间: ${s.examDate} ${s.examTime}`);
-                descriptionParts.push(`时长: ${s.minutes} 分钟`);
-                descriptionParts.push(`监考: ${proctors}`);
-                descriptionParts.push(`考生人数: ${s.numOfStudents}`);
-                if (includeRoster && s.students) {
-                    descriptionParts.push(`考生名单: ${s.students.join(", ")}`);
-                }
-            }
-            const description = descriptionParts.join("\n");
-
-            const uid = `${safeUid(ownerName)}-${safeUid(s.examDate)}-${safeUid(s.examTime)}-${safeUid(
-                s.subject,
-            )}@${safeUid(uidNamespace)}`;
-
-            lines.push("BEGIN:VEVENT");
-            lines.push(`UID:${icsEscapeText(uid)}`);
-            lines.push(`DTSTAMP:${dtstamp}`);
-            lines.push(`DTSTART;TZID=${icsEscapeText(timezone)}:${dtStart}`);
-            lines.push(`DTEND;TZID=${icsEscapeText(timezone)}:${dtEnd}`);
-            lines.push(`SUMMARY:${icsEscapeText(summary)}`);
-            lines.push(`LOCATION:${icsEscapeText(location)}`);
-            lines.push(`DESCRIPTION:${icsEscapeText(description)}`);
-            lines.push("END:VEVENT");
-        }
-
-        lines.push("END:VCALENDAR");
-        return lines.map(foldIcsLine).join("\r\n") + "\r\n";
+        return generateCalendar(ownerName, sessions, { ...opts, kind: "student", uidNamespace: "examschedule" });
     }
 
     async function exportIcsToDevice(filename, content) {
@@ -1260,33 +1120,33 @@
                             <div class="test-session">
                                 <div>
                                     <div>
-                                        ${dateTime}<br><span>${t("len")}</span> ${session.minutes} <span>${t("minutes")}</span>
+                                        ${escapeHtml(dateTime)}<br><span>${t("len")}</span> ${escapeHtml(session.minutes)} <span>${t("minutes")}</span>
                                     </div>
-                                    <div>${session.subject} ${session.grade} ${session.classNum}</div>
+                                    <div>${escapeHtml(session.subject)} ${escapeHtml(session.grade)} ${escapeHtml(session.classNum)}</div>
                                 </div>
 
                                 ${
                                         showCheck
                                                 ? `<div>
-                                    <span>${t("students")}</span>${session.students && session.students.join(", ")}  <span>${t(
+                                    <span>${t("students")}</span>${escapeHtml((session.students || []).join(", "))}  <span>${t(
                                                             "total",
-                                                    )}</span>${session.numOfStudents}<span>${t("people")}</span>
+                                                    )}</span>${escapeHtml(session.numOfStudents)}<span>${t("people")}</span>
                                 </div>`
                                                 : ""
                                 }
 
                                 <div>
-                                    <span>${t("location")}</span>${session.location}
+                                    <span>${t("location")}</span>${escapeHtml(session.location)}
                                 </div>
 
                                 <div>
                                     <span>${t("proctoredBy1")}</span><span
                                         class="proctor-name"
                                         title="${escapeHtml(session.proctor1 || "")}"
-                                    >${escapeHtml(session.proctor1 || "")}</span><span>${t("proctoredBy2")}</span><span
+                                    >${escapeHtml(session.proctor1 || "")}</span>${session.proctor2 ? `<span>${t("proctoredBy2")}</span><span
                                         class="proctor-name"
-                                        title="${escapeHtml(session.proctor2 || "")}"
-                                    >${escapeHtml(session.proctor2 || "")}</span><span>${t("proctoredBy3")}</span>
+                                        title="${escapeHtml(session.proctor2)}"
+                                    >${escapeHtml(session.proctor2)}</span>` : ""}<span>${t("proctoredBy3")}</span>
                                 </div>
                             </div>
                         `;
@@ -1353,7 +1213,10 @@
     }
 
     fetch("./testSessionsByStudent.json")
-        .then((res) => res.json())
+        .then((res) => {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.json();
+        })
         .then((testSessionsByStudent) => {
             const form = document.querySelector("form");
 
@@ -1365,7 +1228,7 @@
             window.lookupStudent = function (input) {
                 const raw = String(input || "").trim();
                 if (!raw) return { suggestions: [] };
-                if (testSessionsByStudent[raw]) {
+                if (Object.prototype.hasOwnProperty.call(testSessionsByStudent, raw)) {
                     return { name: raw, sessions: testSessionsByStudent[raw] };
                 }
                 const compactKey = normalizeName(raw).replace(/\s+/g, "");

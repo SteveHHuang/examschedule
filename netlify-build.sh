@@ -1,24 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export DENO_INSTALL="/opt/buildhome/.deno"
-export PATH="$DENO_INSTALL/bin:$PATH"
+cd "$(dirname "$0")"
 
-echo "Checking Deno..."
-if ! command -v deno >/dev/null 2>&1; then
-    echo "Deno not found. Installing Deno..."
-    curl -fsSL https://deno.land/install.sh | sh
-else
-    echo "Deno found: $(deno --version | head -n 1)"
+# Netlify normally installs npm dependencies before this script. Also support
+# running the script directly in a fresh checkout using the npm lockfile.
+if [[ ! -x node_modules/.bin/deno ]]; then
+    npm ci
 fi
 
-echo "Generating pre-indexed JSON files..."
-deno run --allow-read --allow-write src/cli.ts \
-    input.csv \
-    public/testSessionsByStudent.json \
-    public/studentNamesList.txt \
-    public/testSessionsByProctor.json \
-    public/proctorNamesList.txt
+npm run build
 
-echo "Build complete. Files in public/:"
-ls -la public/testSessionsByStudent.json public/testSessionsByProctor.json public/*.txt
+for file in public/testSessionsByStudent.json public/testSessionsByProctor.json \
+    public/studentNamesList.txt public/proctorNamesList.txt; do
+    test -s "$file"
+done
+
+echo "Build complete: validated query files are ready in public/."

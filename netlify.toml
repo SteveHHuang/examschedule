@@ -1,10 +1,10 @@
 [build]
-  # Netlify does not ship Deno by default, so netlify-build.sh installs it on demand.
+  # Use the Deno runtime installed by npm from package-lock.json.
   command = "bash netlify-build.sh"
   publish = "public"
 
 [build.environment]
-  DENO_INSTALL = "/opt/buildhome/.deno"
+  NODE_VERSION = "22"
 
 [[headers]]
   for = "/*"
