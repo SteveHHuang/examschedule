@@ -144,6 +144,17 @@ export async function processFile(
                     }
                     acc[key].classNum = [...new Set([...acc[key].classNum.split(","), ...curr.classNum.split(",")])].join(",");
                     acc[key].numOfStudents = [...new Set([...acc[key].numOfStudents.split(","), ...curr.numOfStudents.split(",")])].join(",");
+
+                    // Merge proctors across combined class rows so no proctor is dropped.
+                    const allNames = [
+                        ...((acc[key].proctor1 || "").trim().split(/[\n、]/).map(i => i.trim()).filter(Boolean)),
+                        ...((acc[key].proctor2 || "").trim().split(/[\n、]/).map(i => i.trim()).filter(Boolean)),
+                        ...((curr.proctor1 || "").trim().split(/[\n、]/).map(i => i.trim()).filter(Boolean)),
+                        ...((curr.proctor2 || "").trim().split(/[\n、]/).map(i => i.trim()).filter(Boolean)),
+                    ];
+                    const uniqueNames = [...new Set(allNames)];
+                    acc[key].proctor1 = uniqueNames.join("\n");
+                    acc[key].proctor2 = null;
                 }
                 return acc;
             }, {} as Record<string, TestSession>);
