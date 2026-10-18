@@ -78,10 +78,13 @@ export async function processFile(
                 Boolean
             ) as string[];
 
-            const proctors1 =
-                (proctor1 as string).trim().split("、").map((i) => i.split("\n")).flat().map(i => i.trim());
+            const isValidProctor = (name: string) =>
+                name.length > 0 && name !== "/" && name !== "\\" && name !== "-";
 
-            const proctorsRaw = [...proctors1, ...(proctor2 as string).trim().split("、").map((i) => i.split("\n")).flat().map(i => i.trim())]
+            const proctors1 =
+                (proctor1 as string).trim().split("、").map((i) => i.split("\n")).flat().map(i => i.trim()).filter(isValidProctor);
+
+            const proctorsRaw = [...proctors1, ...(proctor2 as string).trim().split("、").map((i) => i.split("\n")).flat().map(i => i.trim()).filter(isValidProctor)]
 
             const proctors = [...new Set(proctorsRaw)];
 
