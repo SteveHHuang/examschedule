@@ -1087,18 +1087,21 @@
             const proctors = [s.proctor1, s.proctor2].filter(Boolean).join(" / ");
 
             // Language toggles: subject stays as-is, but labels change.
-            const classPart = s.classNum ? s.classNum : "";
+            const classPart =
+                s.classes && s.classes.length
+                    ? s.classes.join("、")
+                    : `${s.grade}${s.classNum ? " " + s.classNum : ""}`;
             const summary =
                 locale === "en"
-                    ? `Proctor: ${s.subject} (${s.grade}${classPart})`
-                    : `监考: ${s.subject} (${s.grade}${classPart})`;
+                    ? `Proctor: ${s.subject} (${classPart})`
+                    : `监考: ${s.subject} (${classPart})`;
 
             const descriptionParts = [];
             if (locale === "en") {
                 descriptionParts.push(`Proctor: ${ownerName}`);
                 descriptionParts.push(`Time: ${s.examDate} ${s.examTime}`);
                 descriptionParts.push(`Duration: ${s.minutes} minutes`);
-                descriptionParts.push(`Proctored by: ${proctors}`);
+                if (proctors) descriptionParts.push(`Proctored by: ${proctors}`);
                 descriptionParts.push(`Students: ${s.numOfStudents}`);
                 // Always include roster for proctor exports
                 descriptionParts.push(`Roster: ${(s.students || []).join(", ")}`);
@@ -1106,7 +1109,7 @@
                 descriptionParts.push(`监考老师: ${ownerName}`);
                 descriptionParts.push(`时间: ${s.examDate} ${s.examTime}`);
                 descriptionParts.push(`时长: ${s.minutes} 分钟`);
-                descriptionParts.push(`监考: ${proctors}`);
+                if (proctors) descriptionParts.push(`监考: ${proctors}`);
                 descriptionParts.push(`学生人数: ${s.numOfStudents}`);
                 // Always include roster for proctor exports
                 descriptionParts.push(`学生名单: ${(s.students || []).join(", ")}`);
@@ -1208,6 +1211,7 @@
                                     <div>
                                         ${dateTime}<br><span>${t("len")}</span> ${session.minutes} <span>${t("minutes")}</span>
                                     </div>
+                                    <div>${session.subject}</div>
                                     <div>${classList}</div>
                                 </div>
 

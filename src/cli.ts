@@ -189,6 +189,13 @@ export async function processFile(
                     acc[key].classes = classIdentifiers(curr.grade, curr.classNum);
                 } else {
                     acc[key].students = [...acc[key].students, ...curr.students];
+                    // Keep every distinct subject so the card can show all course names.
+                    acc[key].subject = [
+                        ...new Set([
+                            ...acc[key].subject.split(/[、,]/).map((s) => s.trim()).filter(Boolean),
+                            ...curr.subject.split(/[、,]/).map((s) => s.trim()).filter(Boolean),
+                        ]),
+                    ].join("、");
                     acc[key].classes = [
                         ...new Set([
                             ...(acc[key].classes || []),
@@ -205,7 +212,6 @@ export async function processFile(
 
             proctorClassView[proc] = Object.values(grouped).map((s) => ({
                 ...s,
-                subject: "",
                 grade: "",
                 classNum: "",
                 proctor1: "",
