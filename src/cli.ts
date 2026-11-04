@@ -18,30 +18,12 @@ interface TestSession {
 }
 
 function classIdentifiers(grade: string, classNum: string): string[] {
-    const grades = (grade || "")
-        .split(",")
-        .map((g) => g.trim())
-        .filter((g) => g.length > 0);
-    const classes = (classNum || "")
+    const g = (grade || "").trim();
+    return (classNum || "")
         .split(",")
         .map((c) => c.trim())
-        .filter((c) => c.length > 0);
-
-    // No grade info → just the class numbers.
-    if (grades.length === 0) return classes;
-
-    const out: string[] = [];
-    for (const g of grades) {
-        if (classes.length === 0) {
-            out.push(g);
-        } else {
-            // A single grade paired with each class, e.g. "高一 1班".
-            // Multiple grades share the same class numbers, so expand the
-            // cartesian product: "高一,高三" + "1班" → "高一 1班"、"高三 1班".
-            for (const c of classes) out.push(`${g} ${c}`);
-        }
-    }
-    return out;
+        .filter((c) => c.length > 0)
+        .map((c) => (g ? `${g} ${c}` : c));
 }
 
 function sumNumberString(a: string, b: string): string {
