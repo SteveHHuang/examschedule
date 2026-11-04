@@ -18,12 +18,30 @@ interface TestSession {
 }
 
 function classIdentifiers(grade: string, classNum: string): string[] {
-    const g = (grade || "").trim();
-    return (classNum || "")
+    const grades = (grade || "")
+        .split(",")
+        .map((g) => g.trim())
+        .filter((g) => g.length > 0);
+    const classes = (classNum || "")
         .split(",")
         .map((c) => c.trim())
-        .filter((c) => c.length > 0)
-        .map((c) => (g ? `${g} ${c}` : c));
+        .filter((c) => c.length > 0);
+
+    // No grade info → just the class numbers.
+    if (grades.length === 0) return classes;
+
+    const out: string[] = [];
+    for (const g of grades) {
+        if (classes.length === 0) {
+            out.push(g);
+        } else {
+            // A single grade paired with each class, e.g. "高一 1班".
+            // Multiple grades share the same class numbers, so expand the
+            // cartesian product: "高一,高三" + "1班" → "高一 1班"、"高三 1班".
+            for (const c of classes) out.push(`${g} ${c}`);
+        }
+    }
+    return out;
 }
 
 function sumNumberString(a: string, b: string): string {
@@ -189,6 +207,13 @@ export async function processFile(
                     acc[key].classes = classIdentifiers(curr.grade, curr.classNum);
                 } else {
                     acc[key].students = [...acc[key].students, ...curr.students];
+                    // Keep every distinct subject so the card can show all course names.
+                    acc[key].subject = [
+                        ...new Set([
+                            ...acc[key].subject.split(/[、,]/).map((s) => s.trim()).filter(Boolean),
+                            ...curr.subject.split(/[、,]/).map((s) => s.trim()).filter(Boolean),
+                        ]),
+                    ].join("、");
                     acc[key].classes = [
                         ...new Set([
                             ...(acc[key].classes || []),
@@ -205,7 +230,6 @@ export async function processFile(
 
             proctorClassView[proc] = Object.values(grouped).map((s) => ({
                 ...s,
-                subject: "",
                 grade: "",
                 classNum: "",
                 proctor1: "",
