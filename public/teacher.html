@@ -180,6 +180,16 @@
             grid-area: location;
         }
 
+        .test-session .proctor-note {
+            margin-top: 4px;
+            font-size: 0.92em;
+            color: #b45309;
+            font-weight: 500;
+        }
+        html[data-theme="dark"] .test-session .proctor-note {
+            color: #fbbf24;
+        }
+
         @media (max-width: 700px) {
             .test-session {
                 grid-template-columns: 1fr;
@@ -1205,6 +1215,9 @@
                         const classList = session.classes && session.classes.length
                                 ? session.classes.join("、")
                                 : `${session.grade}${session.classNum ? " " + session.classNum : ""}`;
+                        const noteLabel = session.proctorNote
+                                ? `<div class="proctor-note">${escapeHtml(proctorName)}（${escapeHtml(session.proctorNote)}）</div>`
+                                : "";
                         schedule.innerHTML += `
                             <div class="test-session">
                                 <div>
@@ -1213,6 +1226,7 @@
                                     </div>
                                     <div>${session.subject}</div>
                                     <div>${classList}</div>
+                                    ${noteLabel}
                                 </div>
 
                                 ${
