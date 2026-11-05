@@ -15,6 +15,10 @@ interface TestSession {
     students: string[];
     // For the proctor view: list of "grade classNum" identifiers grouped by time/location.
     classes?: string[];
+    // Annotation for a proctor whose name carries a parenthetical note such as
+    // "郭培映（1400走）". Kept so the proctor view can show the full bracketed
+    // name on the specific session while still indexing them under their bare name.
+    proctorNote?: string;
 }
 
 function classIdentifiers(grade: string, classNum: string): string[] {
@@ -24,6 +28,18 @@ function classIdentifiers(grade: string, classNum: string): string[] {
         .map((c) => c.trim())
         .filter((c) => c.length > 0)
         .map((c) => (g ? `${g} ${c}` : c));
+}
+
+// Split a proctor name like "郭培映（1400走）" into its bare name and the
+// parenthetical note. Returns { name: "郭培映", note: "1400走" } when a note is
+// present, otherwise { name, note: null }.
+function splitProctorNote(raw: string): { name: string; note: string | null } {
+    const s = (raw || "").trim();
+    const m = s.match(/^(.+?)[（(](.+?)[)）]$/);
+    if (m) {
+        return { name: m[1].trim(), note: m[2].trim() };
+    }
+    return { name: s, note: null };
 }
 
 function sumNumberString(a: string, b: string): string {
@@ -106,11 +122,14 @@ export async function processFile(
             const proctors = [...new Set(proctorsRaw)];
 
             proctors.forEach(proctor => {
-                if (!testSessionsByProctor[proctor]) {
-                    testSessionsByProctor[proctor] = [];
+                // Index under the bare name, so "郭培映（1400走）" folds into
+                // "郭培映"; the note is kept on the session for display.
+                const { name: proctorKey, note } = splitProctorNote(proctor);
+                if (!testSessionsByProctor[proctorKey]) {
+                    testSessionsByProctor[proctorKey] = [];
                 }
 
-                testSessionsByProctor[proctor].push({
+                testSessionsByProctor[proctorKey].push({
                     examDate: examDate || "INVALID DATE",
                     examTime: examTime || "INVALID TIME",
                     subject: subject || "INVALID SUBJECT",
@@ -122,6 +141,7 @@ export async function processFile(
                     proctor2: proctor2 || null,
                     numOfStudents: numOfStudents || "INVALID NUMBER OF STUDENTS",
                     students: studentNames,
+                    proctorNote: note || undefined,
                 })
             })
 
@@ -206,6 +226,10 @@ export async function processFile(
                         acc[key].numOfStudents,
                         curr.numOfStudents,
                     );
+                    // Preserve a parenthetical proctor note if this row carries one.
+                    if (!acc[key].proctorNote && curr.proctorNote) {
+                        acc[key].proctorNote = curr.proctorNote;
+                    }
                 }
                 return acc;
             }, {} as Record<string, TestSession>);
