@@ -12,52 +12,26 @@ Deployed on Netlify
 ### Prerequisites
 
 - Deno >= 1.34.0
+- Python 3 + openpyxl (for regenerating the exam data from the school's Excel)
 
-#### Delete header rows in excel
+#### Convert the school's Excel to `input.csv`
 
-#### Spread merged cells using VBA script
+The school distributes the invigilation schedule as an `.xlsx`. Convert it with:
 
-1. Alt + F11
-2. Insert > Module
-3. Add this script
-
-```vba
-Sub UnMergeSameCell()
-Dim Rng As Range, xCell As Range
-xTitleId = "Select Cells to unmerge"
-Set WorkRng = Application.Selection
-Set WorkRng = Application.InputBox("Range", xTitleId, WorkRng.Address, Type:=8)
-Application.ScreenUpdating = False
-Application.DisplayAlerts = False
-For Each Rng In WorkRng
-    If Rng.MergeCells Then
-        With Rng.MergeArea
-            .UnMerge
-            .Formula = Rng.Formula
-        End With
-    End If
-Next
-Application.DisplayAlerts = True
-Application.ScreenUpdating = True
-End Sub
+```bash
+pip install -r requirements.txt
+python3 scripts/convert.py "/path/to/监考表.xlsx"
 ```
 
-<!-- credit: Extendoffice -->
+This reads Sheet1 (data starts below the two header rows), forward-fills the
+merged cells (时长/考场/监考1/监考2 …), maps grade codes 10/11/12 → 高一/高二/高三,
+restores trailing-zero dates like `11.1` → `2026.11.10`, sets `numOfStudents`
+from the actual student roster length, and pads every row to a uniform width
+(Deno's CSV parser rejects ragged rows). The result is written to `input.csv`.
 
-1. Select all cells in sheet
-2. Use F5 to run the script (or run and choose all cells in VBA editor)
-3. Export csv as `test.csv`
-
-#### Open csv and add column names
-
-1. Open csv in textedit
-2. add this to an extra topmost line:
-
-```csv
-examDate,examTime,subject,grade,minutes,classNum,location,proctor1,proctor2,numOfStudents,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16,s17,s18,s19,s20,s21,s22,s23,s24,s25,s26,s27,s28,s29,s30,s31,s32,s33,s34,s35,s36,s37,s38,s39,s40,s41,s42,s43,s44,s45,s46,s47,s48
-```
-
-1. rename csv as `input.csv` and copy to this folder
+> If the school changes the sheet layout (sheet name, number of header rows,
+> or the column where student names begin), edit the `Tunables` block at the
+> top of `scripts/convert.py`.
 
 #### Generate preindexed jsons
 
