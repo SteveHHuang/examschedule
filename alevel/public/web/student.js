@@ -74,7 +74,7 @@ const $ = window.jQuery;
             location: "Location: ",
 
             // footer / disclaimer
-            contribHtml: `This is a <a href="https://fsf.org/">Free Software</a> project, developed by <a href="https://github.com/plushugh/examschedule">@</a> <a href="https://github.com/SteveHHuang/examschedule">@SteveHHuang</a>.`,
+            contribHtml: `This is a <a href="https://fsf.org/">Free Software</a> project, developed by <a href="https://github.com/SteveHHuang/examschedule">@SteveHHuang</a>.`,
             disclaimerLabel: "Feedback / Disclaimer",
             disclaimerText:
                 "Disclaimer: The exam information provided by this service is for reference only and does not necessarily reflect the actual exam information. Please refer to the official exam information for details.",
