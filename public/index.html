@@ -46,7 +46,7 @@
         }
 
         /* Styled here instead of inline, so the dark theme can override it. */
-        #teacher-link {
+        #teacher-link, #alevel-link {
             color: #007779;
             text-align: center;
             margin: 0;
@@ -588,6 +588,7 @@
         }
 
         html[data-theme="dark"] #teacher-link,
+        html[data-theme="dark"] #alevel-link,
         html[data-theme="dark"] #student-link {
             color: #2dd4d8;
         }
@@ -685,6 +686,9 @@
     <p id="teacher-link">
         教师监考查询：请访问<a href="./teacher.html">教师版</a>
     </p>
+    <p id="alevel-link">
+        <a href="https://brsexam.approacher.org/alevel/">alevel考试信息点这里</a>
+    </p>
     <form>
     <!--
     <label for="student-name">输入学生全名：</label>
@@ -759,6 +763,7 @@
             findHint: "如果查不到，请使用希悦档案的名字查询",
             teacherLink: "教师监考查询：请访问",
             teacherLinkLabel: "教师版",
+            alevelLinkLabel: "alevel考试信息点这里",
             studentPlaceholder: "请输入学生全名",
             submit: "查找考试/自习信息",
             showOthers: "显示考试/自习其他学生",
@@ -805,6 +810,7 @@
             findHint: "If you can't find your schedule, please search using the name on your 希悦 (student record) profile",
             teacherLink: "Proctor Sessions Lookup: please visit",
             teacherLinkLabel: "Teacher Version",
+            alevelLinkLabel: "Click here to find out alevel exam information",
             studentPlaceholder: "Enter full student name",
             submit: "Find Exam/Self-study Sessions",
             showOthers: "Show other students",
@@ -862,6 +868,7 @@
         setText("#line-updated", t("updated"));
         setText("#line-permalink", t("permLink"));
         setText("#line-findhint", t("findHint"));
+        setText("#alevel-link a", t("alevelLinkLabel"));
 
         const teacherLink = document.querySelector("#teacher-link");
         if (teacherLink) {
