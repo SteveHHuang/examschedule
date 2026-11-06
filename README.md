@@ -76,3 +76,9 @@ deno run --allow-read --allow-write src/cli.ts export-ics proctor public/testSes
 #### Deploy webapp from `public/` directory
 
 Use netlify, since this app uses netlify forms for feedback form collection.
+
+## A Level 子站
+
+A Level 源文件与考表位于 `alevel/`，共用主项目 Deno 工具链。根目录运行 `npm run dev` 可同时预览校内考试（`/`）和 A Level（`/alevel/`）。单独更新 A Level 数据可运行 `npm run generate-json:alevel`。
+
+Netlify 构建脚本自动生成 `public/alevel/`，部署后地址为 https://brsexam.approacher.org/alevel 。详细说明见 `alevel/README.md`。

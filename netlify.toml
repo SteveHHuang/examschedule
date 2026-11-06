@@ -12,3 +12,9 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Keep /alevel in the address bar; the page base resolves assets and data below it.
+[[redirects]]
+  from = "/alevel"
+  to = "/alevel/index.html"
+  status = 200

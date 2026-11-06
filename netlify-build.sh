@@ -20,5 +20,7 @@ deno run --allow-read --allow-write src/cli.ts \
     public/testSessionsByProctor.json \
     public/proctorNamesList.txt
 
+deno run --allow-read --allow-write src/build-alevel.ts
+
 echo "Build complete. Files in public/:"
 ls -la public/testSessionsByStudent.json public/testSessionsByProctor.json public/*.txt
