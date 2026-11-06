@@ -1,0 +1,20 @@
+/* Shared geometry matches the main site's Chinese layout at desktop width.
+   Use pixel dimensions instead of ch/normal, whose metrics change with lang. */
+body {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 16px;
+    line-height: 22.5px;
+}
+
+.page {
+    width: min(1632px, 100%);
+}
+
+h1 {
+    font-size: 32px;
+    line-height: 45px;
+}
+
+.page > small {
+    line-height: 18.5px;
+}
