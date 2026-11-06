@@ -156,6 +156,12 @@
           "location proctors";
         }
 
+        .test-session.study-session {
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-areas: "meta meta" "students students" "location proctors";
+        }
+        .test-session.study-session > div:last-child { justify-content: flex-end; }
+
         .test-session:hover {
             box-shadow: 6px 4px 0 #000;
         }
@@ -634,6 +640,10 @@
             color: #ffdd8a;
             border-color: #66542e;
         }
+        @media (max-width: 700px) {
+            .test-session.study-session { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "meta meta" "students students" "location proctors"; }
+            .test-session.study-session > div:last-child { justify-content: flex-end; }
+        }
     </style>
     <script>
         // Apply saved / system theme early to avoid flash of wrong theme
@@ -725,7 +735,7 @@
                 </p>
 
                 <p id="contact-notice">
-                    本版本增加了深色模式（右上角可切换），如果有任何的bug或是建议，请联系开发者。
+                    本版本增加了深色模式（右上角可切换）和自习时段，如果有任何的bug或是建议，请联系开发者。
                 </p>
 
                 <p id="contact-info">
@@ -773,7 +783,7 @@
             disclaimerText:
                 "免责声明：本服务提供的考试信息仅供参考，不一定反映真实考试信息，具体请参照官方公布的考试信息。",
             contactNotice:
-                "本版本增加了深色模式（右上角可切换），如果有任何的bug或是建议，请联系开发者。",
+                "本版本增加了深色模式（右上角可切换）和自习时段，如果有任何的bug或是建议，请联系开发者。",
             contactEmailLabel: "电子邮箱 Email:",
             contactDingtalkLabel: "钉钉 Dingtalk:",
 
@@ -819,7 +829,7 @@
             disclaimerText:
                 "Disclaimer: The exam information provided by this service is for reference only and does not necessarily reflect the actual exam information. Please refer to the official exam information for details.",
             contactNotice:
-                "This version adds a dark mode (toggle in the top-right corner). If you notice any bugs or have suggestions, please contact the developer.",
+                "This version adds a dark mode (toggle in the top-right corner) and self-study periods. If you notice any bugs or have suggestions, please contact the developer.",
             contactEmailLabel: "Email:",
             contactDingtalkLabel: "Dingtalk:",
 
@@ -1132,12 +1142,12 @@
             const dtEnd = formatLocalDateTime(year, month, day, endHour, endMin);
 
             const classPart = s.classNum ? s.classNum : "";
-            const summary =
+            const summary = s.kind === "study" ? (locale === "en" ? "Self-study" : "自习") :
                 locale === "en"
                     ? `${s.subject} (${s.grade}${classPart})`
                     : `${s.subject} (${s.grade}${classPart})`;
             const location = s.location;
-            const proctors = [s.proctor1, s.proctor2].filter(Boolean).join(" / ");
+            const proctors = s.kind === "study" ? (s.supervisor || "未注明") : [s.proctor1, s.proctor2].filter(Boolean).join(" / ");
 
             const descriptionParts = [];
             if (locale === "en") {
@@ -1153,7 +1163,7 @@
                 descriptionParts.push(`考生: ${ownerName}`);
                 descriptionParts.push(`考试时间: ${s.examDate} ${s.examTime}`);
                 descriptionParts.push(`时长: ${s.minutes} 分钟`);
-                descriptionParts.push(`监考: ${proctors}`);
+                descriptionParts.push(`${s.kind === "study" ? "看班" : "监考"}: ${proctors}`);
                 descriptionParts.push(`考生人数: ${s.numOfStudents}`);
                 if (includeRoster && s.students) {
                     descriptionParts.push(`考生名单: ${s.students.join(", ")}`);
@@ -1166,7 +1176,8 @@
             )}@${safeUid(uidNamespace)}`;
 
             lines.push("BEGIN:VEVENT");
-            lines.push(`UID:${icsEscapeText(uid)}`);
+            const eventUid = s.kind === "study" ? `${encodeURIComponent(ownerName)}-${s.examDate}-${s.examTime}-study-${encodeURIComponent(s.location)}@${safeUid(uidNamespace)}` : uid;
+            lines.push(`UID:${icsEscapeText(eventUid)}`);
             lines.push(`DTSTAMP:${dtstamp}`);
             lines.push(`DTSTART;TZID=${icsEscapeText(timezone)}:${dtStart}`);
             lines.push(`DTEND;TZID=${icsEscapeText(timezone)}:${dtEnd}`);
@@ -1270,6 +1281,17 @@
                 }
 
                 for (const session of testSessions) {
+                        if (session.kind === "study") {
+                            const isEn = lang === "en";
+                            const teacher = session.supervisor && !["/", "-"].includes(session.supervisor) ? session.supervisor : (isEn ? "Not specified" : "未注明");
+                            schedule.innerHTML += `<div class="test-session study-session">
+                                <div><div>${escapeHtml(session.examDate)} ${escapeHtml(session.examTime.replace(/:/g, ""))}<br><span>${t("len")}</span> ${escapeHtml(session.minutes)} <span>${t("minutes")}</span></div><div>${isEn ? "Self-study" : "自习"}</div></div>
+                                ${showCheck ? `<div><span>${t("students")}</span>${session.students.map(escapeHtml).join(", ")} <span>${t("total")}</span>${session.numOfStudents}<span>${t("people")}</span></div>` : ""}
+                                <div><span>${isEn ? "Study location: " : "自习地点："}</span>${escapeHtml(session.location || (isEn ? "Not specified" : "未注明"))}</div>
+                                <div><span>${isEn ? "Supervised by " : "由"}</span><span class="proctor-name" title="${escapeHtml(teacher)}">${escapeHtml(teacher)}</span><span>${isEn ? "" : "看班"}</span></div>
+                            </div>`;
+                            continue;
+                        }
                         const dateTime = `${session["examDate"]} ${session.examTime}`;
                         schedule.innerHTML += `
                             <div class="test-session">

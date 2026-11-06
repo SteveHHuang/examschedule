@@ -1,3 +1,4 @@
+import { appendStudySessions } from "./study.ts";
 import { parse } from "https://deno.land/std@0.192.0/csv/mod.ts";
 import { generateIcsForSessions } from "./ics.ts";
 
@@ -165,6 +166,8 @@ export async function processFile(
                 });
             });
         }
+
+        await appendStudySessions(testSessionsByStudent);
 
         // const dedup = Object.fromEntries(Object.entries(testSessionsByProctor).map(([proc, sesss]) => [proc, [...new Set(sesss)]]));
         // merge test sessions for each proctor by same date, time, subject and location
