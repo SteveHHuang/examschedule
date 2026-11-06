@@ -51,11 +51,11 @@ const $ = window.jQuery;
             retry: "重试",
         },
         en: {
-            title: "BRS A Level Exam Schedule",
-            updated: "October–November 2026 timetable loaded: 52 exam sessions, 32 students (local test).",
+            title: "BRS A Level Exam Schedule Lookup System",
+            updated: "The October–November 2026 exam schedule has been updated. Please check your schedule.",
             permLink:
-                "Local A Level exam lookup. Please follow the final official and school examination notices.",
-            findHint: "If you can't find your schedule, please use the name on your A Level entry list",
+                "The permanent link to this website is https://brsexam.approacher.org/alevel. If you are using a temporary link, please bookmark the permanent link so you do not lose access.",
+            findHint: "If you cannot find your schedule, please check the exam timetable and student information sheet for the current exam series.",
             studentPlaceholder: "Enter full student name",
             submit: "Find Exam Sessions",
             showOthers: "Show other students",
