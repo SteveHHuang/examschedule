@@ -85,6 +85,6 @@ Netlify 构建脚本自动生成 `public/alevel/`，部署后地址为 https://b
 
 ## 主站自习安排（本地）
 
-`study.csv` 保存自习时段和名单，由 `scripts/convert-study.py` 读取三份年级表生成（参数依次为高一、高二、高三源文件、输出 CSV 路径、核对 JSON 路径；依赖已有的 openpyxl）。`npm run generate-json:school` 自动将自习加入学生查询并按开场时间排序。自习不加入教师监考查询。原表缺少看班老师时显示“未注明”。
+`study.csv` 保存自习时段和名单，由 `scripts/convert-study.py` 读取三份年级表生成（参数依次为高一、高二、高三源文件、输出 CSV 路径、核对 JSON 路径；依赖已有的 openpyxl）。`npm run generate-json:school` 自动将自习加入学生查询并按开场时间排序。教师版按看班老师索引自习，与监考安排按开场时间共同显示；未注明老师的场次不归到任何教师名下。原表缺少看班老师时显示“未注明”。
 
 页面使用“日期 时间、时长、自习、自习地点/由老师看班”的格式，日历下载包含自习。验证命令为 `npm run test:study`。
