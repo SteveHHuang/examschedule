@@ -9,10 +9,10 @@ const $ = window.jQuery;
 
     const i18n = {
         zh: {
-            title: "BRS A Level Exam Schedule",
-            updated: "已载入 2026 年 10–11 月考表：52 场考试，32 名学生（本地测试）",
-            permLink: "本网站为 A Level 大考查询本地测试版，考试安排请以官方及学校最终通知为准",
-            findHint: "如果查不到，请使用 A Level 报考名单中的名字查询",
+            title: "BRS A Level考试时刻查询系统",
+            updated: "已经更新2026年10-11月考试，请同学们查收",
+            permLink: "本网站的永久链接是：https://brsexam.approacher.org/alevel, 若您目前在使用临时链接，请保存收藏以免丢失",
+            findHint: "如果查不到，请在当季考试时间及学生信息表中查询",
             studentPlaceholder: "请输入学生全名",
             submit: "查找考试信息",
             showOthers: "显示考试其他学生",
