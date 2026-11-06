@@ -15,7 +15,8 @@
     "generate-json:alevel": "deno run --allow-read --allow-write src/build-alevel.ts",
     "dev": "npm run generate-json && deno run --allow-net=127.0.0.1:5173 --allow-read https://deno.land/std@0.192.0/http/file_server.ts public --host 127.0.0.1 --port 5173",
     "test:alevel": "deno test --allow-read alevel/tests/schedule.test.mjs",
-    "check:alevel": "deno check alevel/src/cli.ts src/build-alevel.ts"
+    "check:alevel": "deno check alevel/src/cli.ts src/build-alevel.ts",
+    "test:study": "deno test --allow-read --allow-write tests/study.test.ts"
   },
   "dependencies": {
     "deno": "^2.6.5"
