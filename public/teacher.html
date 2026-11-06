@@ -731,6 +731,7 @@
             len: "时长：",
             minutes: "分钟",
             students: "考试学生：",
+            studyStudents: "自习学生：",
             total: "共计",
             people: "人",
             location: "考试地点：",
@@ -774,6 +775,7 @@
             len: "Duration: ",
             minutes: "minutes",
             students: "Students: ",
+            studyStudents: "Self-study students: ",
             total: "Total ",
             people: "",
             location: "Location: ",
@@ -1216,7 +1218,7 @@
                             const isEn = lang === "en";
                             schedule.innerHTML += `<div class="test-session study-session">
                                 <div><div>${escapeHtml(session.examDate)} ${escapeHtml(session.examTime.replace(/:/g, ""))}<br><span>${t("len")}</span> ${escapeHtml(session.minutes)} <span>${t("minutes")}</span></div><div>${isEn ? "Self-study" : "自习"}</div></div>
-                                ${showCheck ? `<div><span>${t("students")}</span>${session.students.map(escapeHtml).join(", ")} <span>${t("total")}</span>${session.numOfStudents}<span>${t("people")}</span></div>` : ""}
+                                ${showCheck ? `<div><span>${t("studyStudents")}</span>${session.students.map(escapeHtml).join(", ")} <span>${t("total")}</span>${session.numOfStudents}<span>${t("people")}</span></div>` : ""}
                                 <div class="session-location"><span>${isEn ? "Study location: " : "自习地点："}${escapeHtml(session.location || (isEn ? "Not specified" : "未注明"))}</span></div>
                             </div>`;
                             continue;
