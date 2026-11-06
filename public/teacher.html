@@ -607,6 +607,8 @@
             color: #ffdd8a;
             border-color: #66542e;
         }
+        .study-location { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; }
+        .study-location .study-supervisor { text-align: right; }
     </style>
     <script>
         // Apply saved / system theme early to avoid flash of wrong theme
@@ -1101,14 +1103,14 @@
                 s.classes && s.classes.length
                     ? s.classes.join("、")
                     : `${s.grade}${s.classNum ? " " + s.classNum : ""}`;
-            const summary =
+            const summary = s.kind === "study" ? (locale === "en" ? "Self-study supervision" : "自习看班") :
                 locale === "en"
                     ? `Proctor: ${s.subject} (${classPart})`
                     : `监考: ${s.subject} (${classPart})`;
 
             const descriptionParts = [];
             if (locale === "en") {
-                descriptionParts.push(`Proctor: ${ownerName}`);
+                descriptionParts.push(`${s.kind === "study" ? "Supervisor" : "Proctor"}: ${ownerName}`);
                 descriptionParts.push(`Time: ${s.examDate} ${s.examTime}`);
                 descriptionParts.push(`Duration: ${s.minutes} minutes`);
                 if (proctors) descriptionParts.push(`Proctored by: ${proctors}`);
@@ -1116,7 +1118,7 @@
                 // Always include roster for proctor exports
                 descriptionParts.push(`Roster: ${(s.students || []).join(", ")}`);
             } else {
-                descriptionParts.push(`监考老师: ${ownerName}`);
+                descriptionParts.push(`${s.kind === "study" ? "看班老师" : "监考老师"}: ${ownerName}`);
                 descriptionParts.push(`时间: ${s.examDate} ${s.examTime}`);
                 descriptionParts.push(`时长: ${s.minutes} 分钟`);
                 if (proctors) descriptionParts.push(`监考: ${proctors}`);
@@ -1131,7 +1133,8 @@
             )}@${safeUid(uidNamespace)}`;
 
             lines.push("BEGIN:VEVENT");
-            lines.push(`UID:${icsEscapeText(uid)}`);
+            const eventUid = s.kind === "study" ? `${encodeURIComponent(ownerName)}-${s.examDate}-${s.examTime}-study-${encodeURIComponent(s.location)}@${safeUid(uidNamespace)}` : uid;
+            lines.push(`UID:${icsEscapeText(eventUid)}`);
             lines.push(`DTSTAMP:${dtstamp}`);
             lines.push(`DTSTART;TZID=${icsEscapeText(timezone)}:${dtStart}`);
             lines.push(`DTEND;TZID=${icsEscapeText(timezone)}:${dtEnd}`);
@@ -1211,6 +1214,15 @@
                 }
 
                 for (const session of testSessions) {
+                        if (session.kind === "study") {
+                            const isEn = lang === "en";
+                            schedule.innerHTML += `<div class="test-session study-session">
+                                <div><div>${escapeHtml(session.examDate)} ${escapeHtml(session.examTime.replace(/:/g, ""))}<br><span>${t("len")}</span> ${escapeHtml(session.minutes)} <span>${t("minutes")}</span></div><div>${isEn ? "Self-study" : "自习"}</div></div>
+                                ${showCheck ? `<div><span>${t("students")}</span>${session.students.map(escapeHtml).join(", ")} <span>${t("total")}</span>${session.numOfStudents}<span>${t("people")}</span></div>` : ""}
+                                <div class="session-location study-location"><span>${isEn ? "Study location: " : "自习地点："}${escapeHtml(session.location || (isEn ? "Not specified" : "未注明"))}</span><span class="study-supervisor">${isEn ? "Supervised by " : "由"}${escapeHtml(session.supervisor)}${isEn ? "" : "看班"}</span></div>
+                            </div>`;
+                            continue;
+                        }
                         const dateTime = `${session["examDate"]} ${session.examTime}`;
                         const classList = session.classes && session.classes.length
                                 ? session.classes.join("、")

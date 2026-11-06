@@ -21,6 +21,21 @@ export async function appendStudySessions(index: Record<string, any[]>, path = "
   try { csv=await Deno.readTextFile(path); }
   catch (error) { if (error instanceof Deno.errors.NotFound) return; throw error; }
   for (const session of studySessions(csv)) for (const name of session.students) (index[name] ||= []).push(session);
+  sortStudySchedules(index);
+}
+
+function sortStudySchedules(index: Record<string, any[]>) {
   const key=(s: {examDate: string; examTime: string}) => s.examDate.split(/[.\/-]/).map(part=>part.padStart(2,"0")).join("-")+" "+s.examTime.split("-")[0].replace(/:/g,"").padStart(4,"0");
   for (const sessions of Object.values(index)) sessions.sort((a,b)=>key(a).localeCompare(key(b)));
+}
+
+export async function appendStudySupervisors(index: Record<string, any[]>, path = "study.csv") {
+  let csv: string;
+  try { csv = await Deno.readTextFile(path); }
+  catch (error) { if (error instanceof Deno.errors.NotFound) return; throw error; }
+  for (const session of studySessions(csv)) {
+    const teachers = [...new Set(session.supervisor.split(/[、,，\n]/).map(name => name.trim()).filter(name => name && !["/", "\\", "-", "未注明"].includes(name)))];
+    for (const teacher of teachers) (index[teacher] ||= []).push({ ...session, classes: [session.grade] });
+  }
+  sortStudySchedules(index);
 }
