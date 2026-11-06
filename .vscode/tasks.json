@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "考试查询：启动开发服务器",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "deno",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Task|已生成",
+          "endsPattern": "Listening on http://127.0.0.1:5173"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "A Level：验证",
+      "type": "shell",
+      "command": "npm run check:alevel && npm run test:alevel",
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}

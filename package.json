@@ -10,7 +10,12 @@
   ],
   "license": "MIT",
   "scripts": {
-    "generate-json": "deno run --allow-read --allow-write src/cli.ts input.csv public/testSessionsByStudent.json public/studentNamesList.txt public/testSessionsByProctor.json public/proctorNamesList.txt"
+    "generate-json": "npm run generate-json:school && npm run generate-json:alevel",
+    "generate-json:school": "deno run --allow-read --allow-write src/cli.ts input.csv public/testSessionsByStudent.json public/studentNamesList.txt public/testSessionsByProctor.json public/proctorNamesList.txt",
+    "generate-json:alevel": "deno run --allow-read --allow-write src/build-alevel.ts",
+    "dev": "npm run generate-json && deno run --allow-net=127.0.0.1:5173 --allow-read https://deno.land/std@0.192.0/http/file_server.ts public --host 127.0.0.1 --port 5173",
+    "test:alevel": "deno test --allow-read alevel/tests/schedule.test.mjs",
+    "check:alevel": "deno check alevel/src/cli.ts src/build-alevel.ts"
   },
   "dependencies": {
     "deno": "^2.6.5"

@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "A Level：启动并调试（Chrome）",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://127.0.0.1:5173/alevel/",
+      "webRoot": "${workspaceFolder}/public",
+      "preLaunchTask": "考试查询：启动开发服务器",
+      "sourceMaps": true,
+      "skipFiles": [
+        "**/node_modules/**"
+      ],
+      "pathMapping": {
+        "/alevel": "${workspaceFolder}/alevel/public"
+      }
+    },
+    {
+      "name": "A Level：调试已运行的网站",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://127.0.0.1:5173/alevel/",
+      "webRoot": "${workspaceFolder}/public",
+      "sourceMaps": true,
+      "skipFiles": [
+        "**/node_modules/**"
+      ],
+      "pathMapping": {
+        "/alevel": "${workspaceFolder}/alevel/public"
+      }
+    }
+  ]
+}

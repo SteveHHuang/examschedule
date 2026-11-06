@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <base href="/alevel/">
+    <meta charset="utf-8"/>
+    <meta content="查询个人 A Level 大考时间和地点" name="description"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
+    <meta content="#121417" media="(prefers-color-scheme: dark)" name="theme-color"/>
+
+    <title>BRS A Level Exam Schedule</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: sans-serif;
+            font-size: 16px;
+        }
+
+        .page {
+            /* Was 130ch — widened so cards make better use of large screens. */
+            width: min(170ch, 100%);
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        @media (min-width: 900px) {
+            .page {
+                padding: 24px;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            margin: 64px 0 10px;
+            padding: 0;
+            font-weight: 700;
+        }
+
+        small:first-of-type {
+            margin: 0 0 10px 0;
+        }
+
+        small {
+            display: block;
+            margin: 0 0 24px 0;
+            text-align: center;
+        }
+
+        form {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            form {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+
+        button,
+        input {
+            outline: none;
+        }
+
+        input[type="text"],
+        textarea[type="text"] {
+            padding: 10px;
+            font-size: 14px;
+            line-height: 14px;
+            border: 2px solid #000;
+            box-shadow: 3px 2px 0 #000;
+            transition: all 0.2s ease-in-out;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            line-height: 16px;
+            color: black;
+            background-color: #cdfeff;
+            border: 2px solid #007779;
+            box-shadow: 3px 2px 0 #007779;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        input[type="text"]:hover,
+        textarea[type="text"]:hover,
+        button:hover {
+            outline: none;
+            border: 2px solid #00a4aa;
+            box-shadow: 4px 3px 0 #00a4aa;
+        }
+
+        input[type="text"]:active,
+        textarea[type="text"]:active,
+        button:active {
+            border: 2px solid #00a4aa;
+            box-shadow: 6px 4px 0 #00a4aa;
+        }
+
+        #schedule {
+            display: grid;
+            gap: 10px;
+            /* Always two cards per row on desktop; cards get longer as the
+               window/screen gets wider. Single column on narrow screens. */
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            width: 100%;
+            margin: 64px auto 48px;
+        }
+
+        @media (max-width: 800px) {
+            #schedule {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .test-session {
+            display: grid;
+            align-items: center;
+            background: #fff;
+            padding: 16px;
+            border: 2px solid #000;
+            box-shadow: 3px 2px 0 #000;
+            transition: all 0.2s ease-in-out;
+
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas:
+          "meta"
+          "students"
+          "location";
+        }
+
+        .test-session:hover {
+            box-shadow: 6px 4px 0 #000;
+        }
+
+        .test-session > .session-meta {
+            text-align: left;
+            grid-area: meta;
+        }
+
+        .test-session > .session-students {
+            text-align: left;
+            grid-area: students;
+        }
+
+        .test-session > .session-location {
+            text-align: left;
+            grid-area: location;
+        }
+
+        span {
+            font-weight: bold;
+            color: #00a4aa;
+        }
+
+        .hidden {
+            opacity: 0;
+            display: none;
+            transform: scale(0.2) skew(180deg);
+        }
+
+        .fk {
+            margin: 0;
+            background-color: #fff;
+            border: 2px solid #000;
+            box-shadow: 3px 2px 0 #000;
+            transition: all 0.2s ease-in-out;
+
+            padding: 12px;
+            max-width: 70ch;
+        }
+
+        .fk:hover {
+            box-shadow: 4px 3px 0 #000;
+        }
+
+        #tog,
+        #toglabel {
+            cursor: pointer;
+        }
+
+        #tog,
+        #content {
+            display: none;
+        }
+
+        #toglabel::before {
+            content: "▶";
+        }
+
+        #tog:checked + #toglabel::before {
+            content: "▼";
+        }
+
+        #tog:checked + #toglabel + #content {
+            display: block;
+        }
+
+        .info {
+            background-color: #fff;
+            border: 2px solid #000;
+            box-shadow: 3px 2px 0 #000;
+            transition: all 0.2s ease-in-out;
+            padding: 12px;
+        }
+
+        .info:hover {
+            box-shadow: 4px 3px 0 #000;
+        }
+
+        .info > a {
+            text-decoration: none;
+        }
+
+        .info > a:hover {
+            text-decoration: underline;
+        }
+
+        .gh {
+            margin: 0;
+            padding: 10px;
+            border: 2px solid #000;
+            box-shadow: 3px 2px 0 #000;
+            background: #fff;
+        }
+
+        .gh > a {
+            text-decoration: none;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .gh > a > span {
+            color: #000;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .gh > a > svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        p.err {
+            display: block;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #000;
+            box-shadow: 3px 2px 0 #000;
+            padding: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            transition: all 0.2s ease-in-out;
+        }
+
+        p.err:hover {
+            box-shadow: 4px 3px 0 #000;
+        }
+
+
+        .page-footer {
+            /* Cards below use the full width, but the footer text stays at a
+               comfortable reading width and centred. */
+            max-width: 1100px;
+            margin: 64px auto 24px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .page-footer .footer-card {
+            background: #fff;
+        }
+
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding: 0;
+            margin: 0;
+            border: none;
+            vertical-align: middle;
+        }
+
+        input[type="checkbox"]:checked::before {
+            background-color: #000;
+        }
+
+        .show-group {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-container {
+            display: block;
+            position: relative;
+            --checkbox-color: #000;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            display: block;
+            background-color: transparent;
+            padding: 12px;
+            border: 2px solid var(--checkbox-color);
+            box-shadow: 3px 2px 0 #000;
+            transition: all 0.1s ease-out;
+            cursor: pointer;
+            transform: scale(1);
+        }
+
+        .checkbox-container input[type="checkbox"]:hover {
+            --checkbox-color: #007779;
+            box-shadow: 4px 3px 0 var(--checkbox-color);
+        }
+
+        .checkbox-container input[type="checkbox"]:active {
+            --checkbox-color: #00a4aa;
+            box-shadow: 6px 4px 0 var(--checkbox-color);
+            transform: scale(1.1);
+        }
+
+        .checkbox-container #checkbox-show-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            opacity: 0;
+            width: 16px;
+            height: 16px;
+            margin: 6px;
+            background-color: #000;
+            z-index: 20;
+            pointer-events: none;
+            transform: scale(1.1);
+            transition: all 0.1s ease-out;
+        }
+
+        .checkbox-container #checkbox-show-indicator.checked {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .checkbox-container
+        input[type="checkbox"]:hover
+        + #checkbox-show-indicator {
+            background-color: #007779;
+        }
+
+        .checkbox-container
+        input[type="checkbox"]:active
+        + #checkbox-show-indicator {
+            background-color: #00a4aa;
+            transform: scale(1.1);
+        }
+
+        .checkbox-container:hover + label {
+            color: #007779;
+        }
+
+        /* ---- Status messages (loading / no result) ---- */
+        .loading,
+        .no-result {
+            /* #schedule is a two-column grid: span both columns so margin:auto
+               centers the message across the whole page, not within one cell. */
+            grid-column: 1 / -1;
+            max-width: 70ch;
+            margin: 32px auto;
+            padding: 14px 16px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            background: #fff;
+            border: 2px solid #000;
+            box-shadow: 3px 2px 0 #000;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .loading:hover,
+        .no-result:hover {
+            box-shadow: 4px 3px 0 #000;
+        }
+
+        .no-result .suggestions {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 400;
+        }
+
+        .no-result .suggestion {
+            cursor: pointer;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .no-result .hint {
+            display: block;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0.75;
+        }
+
+        .retry-btn {
+            margin-top: 12px;
+        }
+
+        /* ---- Dark mode ---- */
+        #theme-toggle {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            padding: 8px 14px;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        html[data-theme="dark"] body {
+            background-color: #121417;
+            color: #e8e8e8;
+        }
+
+        html[data-theme="dark"] a {
+            color: #4fd1d9;
+        }
+
+        html[data-theme="dark"] input[type="text"],
+        html[data-theme="dark"] textarea[type="text"] {
+            background-color: #1e2126;
+            color: #e8e8e8;
+            border-color: #d8d8d8;
+            box-shadow: 3px 2px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] button {
+            color: #e8e8e8;
+            background-color: #0d3a3d;
+            border-color: #00a4aa;
+            box-shadow: 3px 2px 0 #00a4aa;
+        }
+
+        html[data-theme="dark"] input[type="text"]:hover,
+        html[data-theme="dark"] textarea[type="text"]:hover,
+        html[data-theme="dark"] button:hover {
+            border-color: #2dd4d8;
+            box-shadow: 4px 3px 0 #2dd4d8;
+        }
+
+        html[data-theme="dark"] input[type="text"]:active,
+        html[data-theme="dark"] textarea[type="text"]:active,
+        html[data-theme="dark"] button:active {
+            border-color: #2dd4d8;
+            box-shadow: 6px 4px 0 #2dd4d8;
+        }
+
+        html[data-theme="dark"] .test-session,
+        html[data-theme="dark"] .fk,
+        html[data-theme="dark"] .info,
+        html[data-theme="dark"] .gh,
+        html[data-theme="dark"] p.err,
+        html[data-theme="dark"] .page-footer .footer-card {
+            background: #1e2126;
+            border-color: #d8d8d8;
+            box-shadow: 3px 2px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] .test-session:hover,
+        html[data-theme="dark"] .fk:hover,
+        html[data-theme="dark"] .info:hover,
+        html[data-theme="dark"] p.err:hover,
+        html[data-theme="dark"] .loading:hover,
+        html[data-theme="dark"] .no-result:hover {
+            box-shadow: 6px 4px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] .loading,
+        html[data-theme="dark"] .no-result {
+            background: #1e2126;
+            border-color: #d8d8d8;
+            box-shadow: 3px 2px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] span {
+            color: #2dd4d8;
+        }
+
+        html[data-theme="dark"] .gh > a > span {
+            color: #e8e8e8;
+        }
+
+        html[data-theme="dark"] .gh > a > svg {
+            fill: #e8e8e8;
+        }
+
+        html[data-theme="dark"] h1 {
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .checkbox-container {
+            --checkbox-color: #d8d8d8;
+        }
+
+        html[data-theme="dark"] .checkbox-container input[type="checkbox"] {
+            box-shadow: 3px 2px 0 #d8d8d8;
+        }
+
+        html[data-theme="dark"] .checkbox-container #checkbox-show-indicator,
+        html[data-theme="dark"] input[type="checkbox"]:checked::before {
+            background-color: #2dd4d8;
+        }
+
+        html[data-theme="dark"] .ui-widget.ui-widget-content,
+        html[data-theme="dark"] .ui-widget-content {
+            background: #1e2126;
+            color: #e8e8e8;
+            border-color: #555;
+        }
+
+        html[data-theme="dark"] .ui-menu-item .ui-menu-item-wrapper {
+            color: #e8e8e8;
+        }
+
+        html[data-theme="dark"] .ui-menu-item .ui-menu-item-wrapper.ui-state-active {
+            background: #0d3a3d;
+            border-color: #00a4aa;
+            color: #e8e8e8;
+        }
+
+        /* No-JS warning */
+        .noscript-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 16px;
+            margin: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        html[data-theme="dark"] .noscript-warning {
+            background: #332b1a;
+            color: #ffdd8a;
+            border-color: #66542e;
+        }
+    </style>
+    <script>
+        // Apply saved / system theme early to avoid flash of wrong theme
+        (function () {
+            var theme = null;
+            try { theme = localStorage.getItem("alevel-examschedule.theme"); } catch (e) {}
+            if (!theme) {
+                theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            }
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <link href="./vendor/jquery-ui.min.css" rel="stylesheet">
+    <script src="./vendor/jquery-3.6.0.min.js"></script>
+    <script src="./vendor/jquery-ui.min.js"></script>
+</head>
+
+<body>
+<noscript>
+    <div class="noscript-warning">
+        本页面需要启用 JavaScript 才能查询考试时刻表。请检查浏览器设置，或在其他设备上访问。<br>
+        This page requires JavaScript to look up exam schedules. Please enable it in your browser settings, or visit from another device.
+    </div>
+</noscript>
+<button id="theme-toggle" type="button" aria-label="切换深色模式 / Toggle dark mode" title="切换深色模式 / Toggle dark mode">🌙</button>
+<div class="page">
+    <h1>BRS A Level Exam Schedule</h1>
+    <small id="line-updated">已载入 2026 年 10–11 月考表：52 场考试，32 名学生（本地测试）</small>
+    <small id="line-permalink" style="color: red;">本网站为 A Level 大考查询本地测试版，考试安排请以官方及学校最终通知为准</small>
+    <small id="line-findhint">如果查不到，请使用 A Level 报考名单中的名字查询</small>
+    <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0 24px; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <button id="lang-toggle"
+                type="button"
+                title="切换语言 / Switch language"
+                style="font-size: 22px; padding: 18px 26px; line-height: 22px;">
+            中文 / EN
+        </button>
+    </div>
+    <form>
+    <!--
+    <label for="student-name">输入学生全名：</label>
+    -->
+    <input id="student-name" placeholder="请输入学生全名" type="text"/>
+    <button type="submit">查找考试信息</button>
+    <button id="download-ics" type="button" disabled title="先查询考试信息后再下载">下载 Apple 日历 (.ics)</button>
+    <div class="show-group">
+        <div class="checkbox-container">
+            <input id="checkbox-show" type="checkbox"/>
+            <div id="checkbox-show-indicator"></div>
+        </div>
+        <label for="checkbox-show">显示考试其他学生</label>
+    </div>
+</form>
+    <div id="schedule"></div>
+
+    <div class="page-footer" id="page-footer">
+        <div class="gh footer-card" id="github">
+            <a aria-label="Star SteveHHuang/examschedule on GitHub" class="github-button"
+               href="https://github.com/SteveHHuang/examschedule">
+                <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <title>GitHub</title>
+                    <path
+                            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                </svg>
+                <span>Star this project on GitHub</span>
+            </a>
+        </div>
+
+        <div class="info footer-card" id="contrib">
+            这是一个<a href="https://fsf.org/">自由软件</a>项目，由<a href="https://github.com/SteveHHuang/examschedule">@SteveHHuang</a>开发。
+        </div>
+
+        <div class="fk footer-card" id="disclaimer">
+            <input id="tog" type="checkbox"/>
+            <label for="tog" id="toglabel">反馈/免责声明</label>
+            <div id="content">
+                <p id="disclaimer-text">
+                    免责声明：本服务提供的考试信息仅供参考，不一定反映真实考试信息，具体请参照官方公布的考试信息。
+                </p>
+
+                <p id="contact-notice">
+                    如果有任何的bug或建议，请联系开发者。
+                </p>
+
+                <p id="contact-info">
+                    电子邮箱 Email: <a href="mailto:stevehuang2008@outlook.com">stevehuang2008@outlook.com</a><br>
+                    钉钉 Dingtalk: <span style="font-weight: 700; color: inherit;">stevehuang1110</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="./web/student.js"></script>
+<script>
+    // ---- Theme (color scheme) toggle ----
+    (function () {
+        var btn = document.getElementById("theme-toggle");
+        if (!btn) return;
+        function syncIcon() {
+            btn.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
+        }
+        btn.addEventListener("click", function () {
+            var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            try { localStorage.setItem("alevel-examschedule.theme", next); } catch (e) {}
+            syncIcon();
+        });
+        syncIcon();
+    })();
+</script>
+
+</body>
+</html>

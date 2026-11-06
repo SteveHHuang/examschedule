@@ -1,0 +1,115 @@
+{
+  "isDemo": true,
+  "sessions": [
+    {
+      "examDate": "2027-05-04",
+      "examTime": "09:00-10:50",
+      "minutes": "110",
+      "location": "教学楼 A · 201",
+      "grade": "AS",
+      "subject": "Cambridge 9709/12 Mathematics 数学",
+      "classNum": "",
+      "students": [
+        "示例同学",
+        "示例同学二"
+      ]
+    },
+    {
+      "examDate": "2027-05-07",
+      "examTime": "13:00-14:15",
+      "minutes": "75",
+      "location": "教学楼 A · 203",
+      "grade": "AS",
+      "subject": "Cambridge 9702/22 Physics 物理",
+      "classNum": "",
+      "students": [
+        "示例同学",
+        "示例同学二"
+      ]
+    },
+    {
+      "examDate": "2027-05-12",
+      "examTime": "09:00-10:15",
+      "minutes": "75",
+      "location": "教学楼 A · 201",
+      "grade": "AS",
+      "subject": "Cambridge 9709/52 Mathematics 数学",
+      "classNum": "",
+      "students": [
+        "示例同学"
+      ]
+    },
+    {
+      "examDate": "2027-05-18",
+      "examTime": "09:00-10:30",
+      "minutes": "90",
+      "location": "教学楼 B · 302",
+      "grade": "AS",
+      "subject": "Cambridge 9618/12 Computer Science 计算机科学",
+      "classNum": "",
+      "students": [
+        "示例同学"
+      ]
+    },
+    {
+      "examDate": "2027-05-25",
+      "examTime": "13:00-14:15",
+      "minutes": "75",
+      "location": "教学楼 A · 203",
+      "grade": "AS",
+      "subject": "Cambridge 9702/12 Physics 物理",
+      "classNum": "",
+      "students": [
+        "示例同学"
+      ]
+    },
+    {
+      "examDate": "2027-06-02",
+      "examTime": "09:00-11:00",
+      "minutes": "120",
+      "location": "教学楼 B · 302",
+      "grade": "AS",
+      "subject": "Cambridge 9618/22 Computer Science 计算机科学",
+      "classNum": "",
+      "students": [
+        "示例同学"
+      ]
+    },
+    {
+      "examDate": "2027-05-04",
+      "examTime": "09:00-10:30",
+      "minutes": "90",
+      "location": "教学楼 C · 105",
+      "grade": "IAL",
+      "subject": "Pearson Edexcel WMA11/01 Mathematics 数学",
+      "classNum": "",
+      "students": [
+        "Alex Demo"
+      ]
+    },
+    {
+      "examDate": "2027-05-04",
+      "examTime": "10:00-11:30",
+      "minutes": "90",
+      "location": "教学楼 C · 106",
+      "grade": "IAL",
+      "subject": "Pearson Edexcel WEC11/01 Economics 经济",
+      "classNum": "",
+      "students": [
+        "Alex Demo"
+      ]
+    },
+    {
+      "examDate": "2027-05-19",
+      "examTime": "09:00-10:30",
+      "minutes": "90",
+      "location": "教学楼 C · 105",
+      "grade": "IAL",
+      "subject": "Pearson Edexcel WMA12/01 Mathematics 数学",
+      "classNum": "",
+      "students": [
+        "Alex Demo"
+      ]
+    }
+  ]
+}

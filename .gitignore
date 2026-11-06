@@ -74,3 +74,6 @@ testSessionsByStudent.json
 testSessionsByProctor.json
 
 .DS_Store
+
+# A Level publish files are regenerated from alevel/ at build time.
+/public/alevel/
