@@ -696,6 +696,7 @@
     -->
     <input id="student-name" placeholder="请输入学生全名" type="text"/>
     <button type="submit">查找考试/自习信息</button>
+    <button id="exam-only" type="button" aria-pressed="false">仅显示考试</button>
     <button id="download-ics" type="button" disabled title="先查询考试信息后再下载">下载 Apple 日历 (.ics)</button>
     <div class="show-group">
         <div class="checkbox-container">
@@ -767,6 +768,9 @@
             alevelLinkLabel: "alevel考试信息点这里",
             studentPlaceholder: "请输入学生全名",
             submit: "查找考试/自习信息",
+            examOnly: "仅显示考试",
+            showAll: "显示考试/自习",
+            noExams: "当前查询结果没有考试时段。",
             showOthers: "显示考试/自习其他学生",
             dlIcs: "下载 Apple 日历 (.ics)",
             dlNeedSearch: "先查询考试信息后再下载",
@@ -815,6 +819,9 @@
             alevelLinkLabel: "Click here to find out alevel exam information",
             studentPlaceholder: "Enter full student name",
             submit: "Find Exam/Self-study Sessions",
+            examOnly: "View Exam Only",
+            showAll: "View Exams/Self-study",
+            noExams: "No exam sessions in these results.",
             showOthers: "Show other students",
             dlIcs: "Download Apple Calendar (.ics)",
             dlNeedSearch: "Search first",
@@ -889,6 +896,7 @@
 
         const submitBtn = document.querySelector("form button[type='submit']");
         if (submitBtn) submitBtn.textContent = t("submit");
+        updateExamOnlyButton();
 
         const showLabel = document.querySelector("label[for='checkbox-show']");
         if (showLabel) showLabel.textContent = t("showOthers");
@@ -1255,6 +1263,23 @@
         "#checkbox-show-indicator",
     );
 
+    let examOnly = false;
+    const examOnlyBtn = document.querySelector("#exam-only");
+    function visibleSessions(sessions) {
+        return examOnly ? sessions.filter(session => session.kind !== "study") : sessions;
+    }
+    function updateExamOnlyButton() {
+        examOnlyBtn.textContent = t(examOnly ? "showAll" : "examOnly");
+        examOnlyBtn.setAttribute("aria-pressed", String(examOnly));
+    }
+    examOnlyBtn.addEventListener("click", () => {
+        examOnly = !examOnly;
+        updateExamOnlyButton();
+        if (lastStudentSessions && lastStudentName) {
+            renderSchedule(lastStudentName, lastStudentSessions);
+        }
+    });
+
     const downloadIcsBtn = document.querySelector("#download-ics");
 
         function setDownloadEnabled(enabled) {
@@ -1290,7 +1315,12 @@
                         return;
                 }
 
-                for (const session of testSessions) {
+                const displayedSessions = visibleSessions(testSessions);
+                if (!displayedSessions.length) {
+                    schedule.innerHTML = `<p>${escapeHtml(t("noExams"))}</p>`;
+                    return;
+                }
+                for (const session of displayedSessions) {
                         if (session.kind === "study") {
                             const isEn = lang === "en";
                             const teacher = session.supervisor && !["/", "-"].includes(session.supervisor) ? session.supervisor : (isEn ? "Not specified" : "未注明");
@@ -1439,7 +1469,7 @@
 
             function doDownload(locale) {
                 if (!lastStudentSessions || !lastStudentName) return;
-                const ics = generateIcsForSessions(lastStudentName, lastStudentSessions, {
+                const ics = generateIcsForSessions(lastStudentName, visibleSessions(lastStudentSessions), {
                     calendarName: locale === "en" ? `student: ${lastStudentName}` : `考生: ${lastStudentName}`,
                     timezone: "Asia/Shanghai",
                     uidNamespace: "brsexam.approacher.org",
