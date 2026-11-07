@@ -1,7 +1,8 @@
 /* Shared geometry matches the main site's Chinese layout at desktop width.
    Use pixel dimensions instead of ch/normal, whose metrics change with lang. */
 :root {
-    --site-font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    --site-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+        Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 body {
