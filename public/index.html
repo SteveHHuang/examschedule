@@ -407,7 +407,7 @@
             transform: scale(1.1);
         }
 
-        .checkbox-container #checkbox-show-indicator {
+        .checkbox-container .checkbox-indicator {
             position: absolute;
             top: 0;
             left: 0;
@@ -423,20 +423,20 @@
             transition: all 0.1s ease-out;
         }
 
-        .checkbox-container #checkbox-show-indicator.checked {
+        .checkbox-container .checkbox-indicator.checked {
             opacity: 1;
             transform: scale(1);
         }
 
         .checkbox-container
         input[type="checkbox"]:hover
-        + #checkbox-show-indicator {
+        + .checkbox-indicator {
             background-color: #007779;
         }
 
         .checkbox-container
         input[type="checkbox"]:active
-        + #checkbox-show-indicator {
+        + .checkbox-indicator {
             background-color: #00a4aa;
             transform: scale(1.1);
         }
@@ -601,7 +601,7 @@
             box-shadow: 3px 2px 0 #d8d8d8;
         }
 
-        html[data-theme="dark"] .checkbox-container #checkbox-show-indicator,
+        html[data-theme="dark"] .checkbox-container .checkbox-indicator,
         html[data-theme="dark"] input[type="checkbox"]:checked::before {
             background-color: #2dd4d8;
         }
@@ -696,14 +696,20 @@
     -->
     <input id="student-name" placeholder="请输入学生全名" type="text"/>
     <button type="submit">查找考试/自习信息</button>
-    <button id="exam-only" type="button" aria-pressed="false">仅显示考试</button>
     <button id="download-ics" type="button" disabled title="先查询考试信息后再下载">下载 Apple 日历 (.ics)</button>
     <div class="show-group">
         <div class="checkbox-container">
             <input id="checkbox-show" type="checkbox"/>
-            <div id="checkbox-show-indicator"></div>
+            <div id="checkbox-show-indicator" class="checkbox-indicator"></div>
         </div>
         <label for="checkbox-show">显示考试/自习其他学生</label>
+    </div>
+    <div class="show-group">
+        <div class="checkbox-container">
+            <input id="exam-only" type="checkbox"/>
+            <div class="checkbox-indicator" id="exam-only-indicator"></div>
+        </div>
+        <label for="exam-only">仅显示考试</label>
     </div>
 </form>
     <div id="schedule"></div>
@@ -1269,11 +1275,12 @@
         return examOnly ? sessions.filter(session => session.kind !== "study") : sessions;
     }
     function updateExamOnlyButton() {
-        examOnlyBtn.textContent = t(examOnly ? "showAll" : "examOnly");
-        examOnlyBtn.setAttribute("aria-pressed", String(examOnly));
+        document.querySelector("label[for='exam-only']").textContent = t("examOnly");
+        examOnlyBtn.checked = examOnly;
+        document.querySelector("#exam-only-indicator").classList.toggle("checked", examOnly);
     }
-    examOnlyBtn.addEventListener("click", () => {
-        examOnly = !examOnly;
+    examOnlyBtn.addEventListener("change", () => {
+        examOnly = examOnlyBtn.checked;
         updateExamOnlyButton();
         if (lastStudentSessions && lastStudentName) {
             renderSchedule(lastStudentName, lastStudentSessions);
