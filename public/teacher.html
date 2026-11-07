@@ -377,7 +377,7 @@
             transform: scale(1.1);
         }
 
-        .checkbox-container #checkbox-show-indicator {
+        .checkbox-container .checkbox-indicator {
             position: absolute;
             top: 0;
             left: 0;
@@ -393,16 +393,16 @@
             transition: all 0.1s ease-out;
         }
 
-        .checkbox-container #checkbox-show-indicator.checked {
+        .checkbox-container .checkbox-indicator.checked {
             opacity: 1;
             transform: scale(1);
         }
 
-        .checkbox-container input[type="checkbox"]:hover + #checkbox-show-indicator {
+        .checkbox-container input[type="checkbox"]:hover + .checkbox-indicator {
             background-color: #007779;
         }
 
-        .checkbox-container input[type="checkbox"]:active + #checkbox-show-indicator {
+        .checkbox-container input[type="checkbox"]:active + .checkbox-indicator {
             background-color: #00a4aa;
             transform: scale(1.1);
         }
@@ -566,7 +566,7 @@
             box-shadow: 3px 2px 0 #d8d8d8;
         }
 
-        html[data-theme="dark"] .checkbox-container #checkbox-show-indicator,
+        html[data-theme="dark"] .checkbox-container .checkbox-indicator,
         html[data-theme="dark"] input[type="checkbox"]:checked::before {
             background-color: #2dd4d8;
         }
@@ -656,11 +656,18 @@
         <div class="show-group">
             <div class="checkbox-container">
                 <input id="checkbox-show" type="checkbox"/>
-                <div id="checkbox-show-indicator"></div>
+                <div id="checkbox-show-indicator" class="checkbox-indicator"></div>
             </div>
             <label for="checkbox-show">显示考试/自习学生</label>
         </div>
-    </form>
+        <div class="show-group">
+        <div class="checkbox-container">
+            <input id="exam-only" type="checkbox"/>
+            <div class="checkbox-indicator" id="exam-only-indicator"></div>
+        </div>
+        <label for="exam-only">仅显示考试</label>
+    </div>
+</form>
     <div id="schedule"></div>
 
     <div class="page-footer" id="page-footer">
@@ -722,6 +729,9 @@
             studentLinkLabel: "学生版",
             proctorPlaceholder: "请输入教师全名",
             submit: "查找考试/自习信息",
+            examOnly: "仅显示考试",
+            showAll: "显示考试/自习",
+            noExams: "当前查询结果没有考试时段。",
             showStudents: "显示考试/自习学生",
             dlIcs: "下载 Apple 日历 (.ics)",
             dlNeedSearch: "请先查询考试信息",
@@ -766,6 +776,9 @@
             studentLinkLabel: "Student Version",
             proctorPlaceholder: "Enter full teacher name",
             submit: "Find Proctoring Sessions",
+            examOnly: "Show Exams Only",
+            showAll: "View Exams/Self-study",
+            noExams: "No exam sessions in these results.",
             showStudents: "Show students",
             dlIcs: "Download Apple Calendar (.ics)",
             dlNeedSearch: "Please search first",
@@ -837,6 +850,7 @@
 
         const submitBtn = document.querySelector("form button[type='submit']");
         if (submitBtn) submitBtn.textContent = t("submit");
+        updateExamOnlyButton();
 
         const showLabel = document.querySelector("label[for='checkbox-show']");
         if (showLabel) showLabel.textContent = t("showStudents");
@@ -1192,6 +1206,24 @@
     let lastQueryName = "";
     let lastSuggestions = [];
 
+    let examOnly = false;
+    const examOnlyBtn = document.querySelector("#exam-only");
+    function visibleSessions(sessions) {
+        return examOnly ? sessions.filter(session => session.kind !== "study") : sessions;
+    }
+    function updateExamOnlyButton() {
+        document.querySelector("label[for='exam-only']").textContent = t("examOnly");
+        examOnlyBtn.checked = examOnly;
+        document.querySelector("#exam-only-indicator").classList.toggle("checked", examOnly);
+    }
+    examOnlyBtn.addEventListener("change", () => {
+        examOnly = examOnlyBtn.checked;
+        updateExamOnlyButton();
+        if (lastProctorSessions && lastProctorName) {
+            renderSchedule(lastProctorName, lastProctorSessions);
+        }
+    });
+
     const downloadIcsBtn = document.querySelector("#download-ics");
 
     const showCheckbox = document.querySelector("#checkbox-show");
@@ -1213,7 +1245,12 @@
                         return;
                 }
 
-                for (const session of testSessions) {
+                const displayedSessions = visibleSessions(testSessions);
+                if (!displayedSessions.length) {
+                    schedule.innerHTML = `<p>${escapeHtml(t("noExams"))}</p>`;
+                    return;
+                }
+                for (const session of displayedSessions) {
                         if (session.kind === "study") {
                             const isEn = lang === "en";
                             schedule.innerHTML += `<div class="test-session study-session">
@@ -1323,7 +1360,7 @@
 
             function doDownload(locale) {
                 if (!lastProctorSessions || !lastProctorName) return;
-                const ics = generateIcsForSessions(lastProctorName, lastProctorSessions, {
+                const ics = generateIcsForSessions(lastProctorName, visibleSessions(lastProctorSessions), {
                     calendarName: locale === "en" ? `proctor: ${lastProctorName}` : `监考: ${lastProctorName}`,
                     timezone: "Asia/Shanghai",
                     uidNamespace: "exam.plushugh.com",

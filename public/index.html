@@ -407,7 +407,7 @@
             transform: scale(1.1);
         }
 
-        .checkbox-container #checkbox-show-indicator {
+        .checkbox-container .checkbox-indicator {
             position: absolute;
             top: 0;
             left: 0;
@@ -423,20 +423,20 @@
             transition: all 0.1s ease-out;
         }
 
-        .checkbox-container #checkbox-show-indicator.checked {
+        .checkbox-container .checkbox-indicator.checked {
             opacity: 1;
             transform: scale(1);
         }
 
         .checkbox-container
         input[type="checkbox"]:hover
-        + #checkbox-show-indicator {
+        + .checkbox-indicator {
             background-color: #007779;
         }
 
         .checkbox-container
         input[type="checkbox"]:active
-        + #checkbox-show-indicator {
+        + .checkbox-indicator {
             background-color: #00a4aa;
             transform: scale(1.1);
         }
@@ -601,7 +601,7 @@
             box-shadow: 3px 2px 0 #d8d8d8;
         }
 
-        html[data-theme="dark"] .checkbox-container #checkbox-show-indicator,
+        html[data-theme="dark"] .checkbox-container .checkbox-indicator,
         html[data-theme="dark"] input[type="checkbox"]:checked::before {
             background-color: #2dd4d8;
         }
@@ -700,9 +700,16 @@
     <div class="show-group">
         <div class="checkbox-container">
             <input id="checkbox-show" type="checkbox"/>
-            <div id="checkbox-show-indicator"></div>
+            <div id="checkbox-show-indicator" class="checkbox-indicator"></div>
         </div>
         <label for="checkbox-show">显示考试/自习其他学生</label>
+    </div>
+    <div class="show-group">
+        <div class="checkbox-container">
+            <input id="exam-only" type="checkbox"/>
+            <div class="checkbox-indicator" id="exam-only-indicator"></div>
+        </div>
+        <label for="exam-only">仅显示考试</label>
     </div>
 </form>
     <div id="schedule"></div>
@@ -767,6 +774,9 @@
             alevelLinkLabel: "alevel考试信息点这里",
             studentPlaceholder: "请输入学生全名",
             submit: "查找考试/自习信息",
+            examOnly: "仅显示考试",
+            showAll: "显示考试/自习",
+            noExams: "当前查询结果没有考试时段。",
             showOthers: "显示考试/自习其他学生",
             dlIcs: "下载 Apple 日历 (.ics)",
             dlNeedSearch: "先查询考试信息后再下载",
@@ -815,6 +825,9 @@
             alevelLinkLabel: "Click here to find out alevel exam information",
             studentPlaceholder: "Enter full student name",
             submit: "Find Exam/Self-study Sessions",
+            examOnly: "Show Exams Only",
+            showAll: "View Exams/Self-study",
+            noExams: "No exam sessions in these results.",
             showOthers: "Show other students",
             dlIcs: "Download Apple Calendar (.ics)",
             dlNeedSearch: "Search first",
@@ -889,6 +902,7 @@
 
         const submitBtn = document.querySelector("form button[type='submit']");
         if (submitBtn) submitBtn.textContent = t("submit");
+        updateExamOnlyButton();
 
         const showLabel = document.querySelector("label[for='checkbox-show']");
         if (showLabel) showLabel.textContent = t("showOthers");
@@ -1255,6 +1269,24 @@
         "#checkbox-show-indicator",
     );
 
+    let examOnly = false;
+    const examOnlyBtn = document.querySelector("#exam-only");
+    function visibleSessions(sessions) {
+        return examOnly ? sessions.filter(session => session.kind !== "study") : sessions;
+    }
+    function updateExamOnlyButton() {
+        document.querySelector("label[for='exam-only']").textContent = t("examOnly");
+        examOnlyBtn.checked = examOnly;
+        document.querySelector("#exam-only-indicator").classList.toggle("checked", examOnly);
+    }
+    examOnlyBtn.addEventListener("change", () => {
+        examOnly = examOnlyBtn.checked;
+        updateExamOnlyButton();
+        if (lastStudentSessions && lastStudentName) {
+            renderSchedule(lastStudentName, lastStudentSessions);
+        }
+    });
+
     const downloadIcsBtn = document.querySelector("#download-ics");
 
         function setDownloadEnabled(enabled) {
@@ -1290,7 +1322,12 @@
                         return;
                 }
 
-                for (const session of testSessions) {
+                const displayedSessions = visibleSessions(testSessions);
+                if (!displayedSessions.length) {
+                    schedule.innerHTML = `<p>${escapeHtml(t("noExams"))}</p>`;
+                    return;
+                }
+                for (const session of displayedSessions) {
                         if (session.kind === "study") {
                             const isEn = lang === "en";
                             const teacher = session.supervisor && !["/", "-"].includes(session.supervisor) ? session.supervisor : (isEn ? "Not specified" : "未注明");
@@ -1439,7 +1476,7 @@
 
             function doDownload(locale) {
                 if (!lastStudentSessions || !lastStudentName) return;
-                const ics = generateIcsForSessions(lastStudentName, lastStudentSessions, {
+                const ics = generateIcsForSessions(lastStudentName, visibleSessions(lastStudentSessions), {
                     calendarName: locale === "en" ? `student: ${lastStudentName}` : `考生: ${lastStudentName}`,
                     timezone: "Asia/Shanghai",
                     uidNamespace: "brsexam.approacher.org",
