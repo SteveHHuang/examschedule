@@ -13,6 +13,7 @@ const $ = window.jQuery;
             updated: "已经更新2026年10-11月考试，请同学们查收",
             permLink: "本网站的永久链接是：https://brsexam.approacher.org/alevel, 若您目前在使用临时链接，请保存收藏以免丢失",
             findHint: "如果查不到，请在当季考试时间及学生信息表中查询",
+            schoolExamLink: "校内期中/期末考试信息点这里",
             studentPlaceholder: "请输入学生全名",
             submit: "查找考试信息",
             showOthers: "显示考试其他学生",
@@ -56,6 +57,7 @@ const $ = window.jQuery;
             permLink:
                 "The permanent link to this website is https://brsexam.approacher.org/alevel. If you are using a temporary link, please bookmark the permanent link so you do not lose access.",
             findHint: "If you cannot find your schedule, please check the exam timetable and student information sheet for the current exam series.",
+            schoolExamLink: "Click here to find out mid/final term exam information",
             studentPlaceholder: "Enter full student name",
             submit: "Find Exam Sessions",
             showOthers: "Show other students",
@@ -112,6 +114,7 @@ const $ = window.jQuery;
         setText("#line-updated", t("updated"));
         setText("#line-permalink", t("permLink"));
         setText("#line-findhint", t("findHint"));
+        setText("#school-exam-link", t("schoolExamLink"));
 
         const studentInput = document.querySelector("#student-name");
         if (studentInput) studentInput.placeholder = t("studentPlaceholder");
