@@ -94,9 +94,3 @@ Netlify 构建脚本自动生成 `public/alevel/`，部署后地址为 https://b
 `study.csv` 保存自习时段和名单，由 `scripts/convert-study.py` 读取三份年级表生成（参数依次为高一、高二、高三源文件、输出 CSV 路径、核对 JSON 路径；依赖已有的 openpyxl）。`npm run generate-json:school` 自动将自习加入学生查询并按开场时间排序。教师版按看班老师索引自习，与监考安排按开场时间共同显示；未注明老师的场次不归到任何教师名下。原表缺少看班老师时显示“未注明”。
 
 页面使用“日期 时间、时长、自习、自习地点/由老师看班”的格式，日历下载包含自习。验证命令为 `npm run test:study`。
-
-## 查询加载诊断
-
-查询按钮会在考表下载、解析、姓名索引及联想查询初始化完成后启用。加载失败时保持禁用并提供重试。依赖脚本和主站查询脚本按顺序使用 `defer`，避免在 HTML 解析期间阻塞首屏。
-
-浏览器开发者工具 Console 中查看 `window.scheduleLoadTimings`：`downloadMs` 包含请求等待和响应体下载，`parseMs` 为 JSON 解析，`setupMs` 为姓名索引、联想及事件初始化，`totalMs` 为从发起数据请求到查询可用的时间，`readyAfterNavigationMs` 为从页面导航到查询可用的时间。Performance 的 User Timing 中也有 `schedule-download`、`schedule-parse`、`schedule-setup`、`schedule-total`。这些诊断仅在本地浏览器中保留，不发送到统计平台。

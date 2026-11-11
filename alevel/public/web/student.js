@@ -120,9 +120,7 @@ const $ = window.jQuery;
         if (studentInput) studentInput.placeholder = t("studentPlaceholder");
 
         const submitBtn = document.querySelector("form button[type='submit']");
-        if (submitBtn) submitBtn.textContent = ScheduleLoader.status === "loading" ? t("loading") : t("submit");
-        const loadingMessage = document.querySelector("#schedule .loading");
-        if (loadingMessage) loadingMessage.textContent = t("loading");
+        if (submitBtn) submitBtn.textContent = t("submit");
 
         const showLabel = document.querySelector("label[for='checkbox-show']");
         if (showLabel) showLabel.textContent = t("showOthers");
@@ -530,8 +528,8 @@ const $ = window.jQuery;
         scheduleEl.innerHTML = `<p class="loading">${escapeHtml(t("loading"))}</p>`;
     }
 
-    applyLanguage();
-    ScheduleLoader.load("./testSessionsByStudent.json")
+    fetch("./testSessionsByStudent.json")
+        .then((res) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
         .then((testSessionsByStudent) => {
             const form = document.querySelector("form");
 
@@ -557,7 +555,7 @@ const $ = window.jQuery;
             // Clear the loading state
             if (scheduleEl) scheduleEl.innerHTML = "";
 
-            (() => {
+            $(document).ready(function () {
                 $("#student-name").autocomplete({
                     minLength: 1,
                     // Case- and space-insensitive matching: typing "choiheeyeon "
@@ -566,7 +564,7 @@ const $ = window.jQuery;
                         response(rankNameMatches(studentEntries, request.term, 20));
                     },
                 });
-            })();
+            });
 
             form.addEventListener("submit", (event) => {
                 event.preventDefault();
@@ -596,13 +594,10 @@ const $ = window.jQuery;
             });
 
             // Apply language after everything is wired
-            ScheduleLoader.ready();
             applyLanguage();
             setDownloadEnabled(false);
         })
         .catch((err) => {
-            ScheduleLoader.failed();
-            applyLanguage();
             console.error(err);
             if (!scheduleEl) return;
             // Keep the page intact (don't wipe the body) and offer a retry.
