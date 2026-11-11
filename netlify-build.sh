@@ -22,5 +22,7 @@ deno run --allow-read --allow-write src/cli.ts \
 
 deno run --allow-read --allow-write src/build-alevel.ts
 
+deno run --allow-read --allow-write --allow-run=git src/update-schedule-times.ts
+
 echo "Build complete. Files in public/:"
 ls -la public/testSessionsByStudent.json public/testSessionsByProctor.json public/*.txt

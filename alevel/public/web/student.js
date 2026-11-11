@@ -481,13 +481,13 @@ const $ = window.jQuery;
                 }
 
                 for (const session of testSessions) {
-                        const dateTime = `${session["examDate"]} ${session.examTime}`;
+                        const dateTime = `${session["examDate"]} ${formatExamTime(session.examTime)}`;
                         const { supervisionLocation, examLocation } = getSessionLocations(session);
                         schedule.innerHTML += `
                             <div class="test-session">
                                 <div class="session-meta">
                                     <div>
-                                        ${session.supervisionTime ? `<span>${t("supervision")}</span>${escapeHtml(session.supervisionTime)}${supervisionLocation ? `（${escapeHtml(supervisionLocation)}）` : ""}<br>` : ""}
+                                        ${session.supervisionTime ? `<span>${t("supervision")}</span>${escapeHtml(formatExamTime(session.supervisionTime))}${supervisionLocation ? `（${escapeHtml(supervisionLocation)}）` : ""}<br>` : ""}
                                         ${session.supervisionTime ? `<span>${t("formalExam")}</span>` : ""}${escapeHtml(dateTime)}<br><span>${t("len")}</span> ${escapeHtml(session.minutes)} <span>${t("minutes")}</span>
                                     </div>
                                     <div class="exam-title">${[session.examType || session.grade, session.subjectName || session.subject, session.paperCode].filter(Boolean).map(escapeHtml).join(" ")}</div>

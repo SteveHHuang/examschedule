@@ -24,6 +24,10 @@ h1 {
     line-height: 18.5px;
 }
 
+#line-last-updated[hidden] {
+    display: none;
+}
+
 /* Form controls do not consistently inherit the body font across browsers. */
 button,
 input,

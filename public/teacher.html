@@ -622,6 +622,7 @@
     <link href="./vendor/jquery-ui.min.css" rel="stylesheet">
     <script src="./vendor/jquery-3.6.0.min.js"></script>
     <script src="./vendor/jquery-ui.min.js"></script>
+    <script src="/time-format.js"></script>
 </head>
 
 <body>
@@ -635,6 +636,7 @@
 <div class="page">
     <h1>BRS考试时刻表查询系统（监考版）</h1>
     <small id="line-updated">已经更新2026-2027学年第1学期期中考试，请老师们查收</small>
+    <small id="line-last-updated" data-schedule="school" hidden></small>
     <small id="line-permalink" style="color: red;">本网站的永久链接是：https://brsexam.approacher.org/，若您目前在使用临时链接，请保存收藏以免丢失</small>
     <small id="line-findhint">如果查不到，请使用希悦档案的名字查询</small>
     <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0 24px; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -1254,13 +1256,13 @@
                         if (session.kind === "study") {
                             const isEn = lang === "en";
                             schedule.innerHTML += `<div class="test-session study-session">
-                                <div><div>${escapeHtml(session.examDate)} ${escapeHtml(session.examTime.replace(/:/g, ""))}<br><span>${t("len")}</span> ${escapeHtml(session.minutes)} <span>${t("minutes")}</span></div><div>${isEn ? "Self-study" : "自习"}</div></div>
+                                <div><div>${escapeHtml(session.examDate)} ${escapeHtml(formatExamTime(session.examTime))}<br><span>${t("len")}</span> ${escapeHtml(session.minutes)} <span>${t("minutes")}</span></div><div>${isEn ? "Self-study" : "自习"}</div></div>
                                 ${showCheck ? `<div><span>${t("studyStudents")}</span>${session.students.map(escapeHtml).join(", ")} <span>${t("total")}</span>${session.numOfStudents}<span>${t("people")}</span></div>` : ""}
                                 <div class="session-location"><span>${isEn ? "Study location: " : "自习地点："}${escapeHtml(session.location || (isEn ? "Not specified" : "未注明"))}</span></div>
                             </div>`;
                             continue;
                         }
-                        const dateTime = `${session["examDate"]} ${session.examTime}`;
+                        const dateTime = `${session["examDate"]} ${formatExamTime(session.examTime)}`;
                         const classList = session.classes && session.classes.length
                                 ? session.classes.join("、")
                                 : `${session.grade}${session.classNum ? " " + session.classNum : ""}`;
@@ -1415,6 +1417,7 @@
 <!-- Cloudflare Web Analytics -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "8ca891a222d24a0faa3a7563a138feb6"}'></script>
 <!-- End Cloudflare Web Analytics -->
+<script type="module" src="/schedule-updated.js"></script>
 </body>
 
 </html>

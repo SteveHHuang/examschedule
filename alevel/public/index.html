@@ -589,6 +589,7 @@
     <link href="/vendor/jquery-ui.min.css" rel="stylesheet">
     <script src="/vendor/jquery-3.6.0.min.js"></script>
     <script src="/vendor/jquery-ui.min.js"></script>
+    <script src="/time-format.js"></script>
 </head>
 
 <body>
@@ -602,6 +603,7 @@
 <div class="page">
     <h1>BRS A Level考试时刻查询系统</h1>
     <small id="line-updated">已经更新2026年10-11月考试，请同学们查收</small>
+    <small id="line-last-updated" data-schedule="alevel" hidden></small>
     <small id="line-permalink" style="color: red;">本网站的永久链接是：https://brsexam.approacher.org/alevel, 若您目前在使用临时链接，请保存收藏以免丢失</small>
     <small id="line-findhint">如果查不到，请在当季考试时间及学生信息表中查询</small>
     <div style="width: 100%; display: flex; justify-content: center; margin: 10px 0 24px; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -612,7 +614,7 @@
             中文 / EN
         </button>
     </div>
-    <p style="text-align: center; margin: 0;"><a id="school-exam-link" href="https://brsexam.approacher.org/">校内期中/期末考试信息点这里</a></p>
+    <p style="text-align: center; margin: 0;"><a id="school-exam-link" href="/">校内期中/期末考试信息点这里</a></p>
     <form>
     <!--
     <label for="student-name">输入学生全名：</label>
@@ -689,5 +691,6 @@
 <!-- Cloudflare Web Analytics -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "8ca891a222d24a0faa3a7563a138feb6"}'></script>
 <!-- End Cloudflare Web Analytics -->
+<script type="module" src="/schedule-updated.js"></script>
 </body>
 </html>
